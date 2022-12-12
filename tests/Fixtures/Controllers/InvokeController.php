@@ -19,8 +19,8 @@ class InvokeController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function __invoke($name)
+    public function __invoke(string $name): mixed
     {
-        return 'invoke';
+        return 'invoke: ' . $name;
     }
 }

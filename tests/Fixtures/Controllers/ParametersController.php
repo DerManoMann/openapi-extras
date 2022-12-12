@@ -21,8 +21,8 @@ class ParametersController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function hey($name)
+    public function hey(string $name): mixed
     {
-        return 'hey';
+        return 'hey: ' . $name;
     }
 }

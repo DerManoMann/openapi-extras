@@ -16,7 +16,7 @@ class AttributeController
     #[OA\Get(path: '/prefixed', x: ['name' => 'attributes'])]
     #[OA\Response(response: 200, description: 'All good')]
     #[OAX\Middleware([BarMiddleware::class])]
-    public function attributes()
+    public function attributes(): mixed
     {
         return 'attributes';
     }
