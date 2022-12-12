@@ -1,6 +1,7 @@
 {
     "name": "radebatz/openapi-extras",
     "description": "Extra annotations for OpenApi/swagger-php.",
+    "keywords": ["OpenApi", "swagger-php", "api"],
     "license": [
         "MIT"
     ],
