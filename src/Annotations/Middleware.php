@@ -3,7 +3,6 @@
 namespace Radebatz\OpenApi\Extras\Annotations;
 
 use OpenApi\Annotations as OA;
-use OpenApi\Generator;
 
 /**
  * @Annotation
@@ -15,7 +14,7 @@ class Middleware extends OA\Attachable
      *
      * @var array<string|class-string>|null
      */
-    public $names = null;
+    public ?array $names = null;
 
     /**
      * @inheritdoc
@@ -25,7 +24,7 @@ class Middleware extends OA\Attachable
     /**
      * @inheritdoc
      */
-    public function allowedParents(): ?array
+    public function allowedParents() : ?array
     {
         return [OA\Operation::class, Controller::class];
     }

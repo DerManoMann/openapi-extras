@@ -14,7 +14,7 @@ class MiddlewareController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function mw()
+    public function mw(): mixed
     {
         return 'mw';
     }

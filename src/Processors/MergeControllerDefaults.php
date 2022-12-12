@@ -25,12 +25,12 @@ class MergeControllerDefaults
                 foreach ($operations as $operation) {
                     if ($this->contextMatch($operation->_context, $controller->_context)) {
                         // update path
-                        if (!Generator::isDefault($controller->prefix)) {
+                        if ($controller->prefix) {
                             $path = $controller->prefix . '/' . $operation->path;
                             $operation->path = str_replace('//', '/', $path);
                         }
 
-                        if (!Generator::isDefault($controller->responses)) {
+                        if ($controller->responses) {
                             $operation->merge($controller->responses, true);
                         }
                     }
@@ -46,14 +46,15 @@ class MergeControllerDefaults
 
     protected function needsProcessing(Controller $controller): bool
     {
-        return !Generator::isDefault($controller->prefix)
-            || !Generator::isDefault($controller->responses)
+        return !$controller->prefix
+            || !$controller->responses
             || !Generator::isDefault($controller->attachables);
     }
 
-    protected function contextMatch(Context $context1, Context $context2): bool
+    protected function contextMatch(?Context $context1, ?Context $context2): bool
     {
-        return $context1->namespace === $context2->namespace
+        return $context1 && $context2
+            && $context1->namespace === $context2->namespace
             && $context1->class == $context2->class;
     }
 

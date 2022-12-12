@@ -4,7 +4,7 @@ namespace Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware;
 
 class BarMiddleware
 {
-    public function __invoke($request, $handlerOrResponse = null, $next = null)
+    public function __invoke()
     {
         return 'bar';
     }

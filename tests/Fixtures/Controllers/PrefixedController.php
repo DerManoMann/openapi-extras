@@ -19,7 +19,7 @@ class PrefixedController
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function prefixed()
+    public function prefixed(): mixed
     {
         return 'prefixed';
     }
