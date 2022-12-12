@@ -1,0 +1,64 @@
+{
+    "name": "radebatz/openapi-extras",
+    "description": "Extra annotations for OpenApi/swagger-php.",
+    "license": [
+        "MIT"
+    ],
+    "homepage": "http://radebatz.net/mano/",
+    "authors": [
+        {
+            "name": "Martin Rademacher",
+            "email": "mano@radebatz.org"
+        }
+    ],
+    "prefer-stable": true,
+    "scripts-descriptions": {
+        "cs": "Fix all codestyle issues",
+        "lint": "Test codestyle",
+        "test": "Run all non-legacy and codestyle tests",
+        "analyse": "Run static analysis (phpstan/psalm)"
+    },
+    "scripts": {
+        "cs": "export XDEBUG_MODE=off && php-cs-fixer fix --allow-risky=yes",
+        "lint": "@cs --dry-run",
+        "test": [
+            "export XDEBUG_MODE=off && phpunit",
+            "@lint"
+        ],
+        "analyse": [
+            "export XDEBUG_MODE=off && phpstan analyse --memory-limit=2G",
+            "export XDEBUG_MODE=off && psalm"
+        ]
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Radebatz\\OpenApi\\Extras\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Radebatz\\OpenApi\\Extras\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    },
+    "require": {
+        "php": ">=8.1",
+        "doctrine/annotations": "^1.13",
+        "psr/simple-cache": "^1.0 || ^2.0 || ^3.0",
+        "zircote/swagger-php": "^4.2.3"
+    },
+    "require-dev": {
+        "composer/package-versions-deprecated": "^1.11",
+        "friendsofphp/php-cs-fixer": "^2.17 || ^3.0",
+        "phpstan/phpstan": "^1.6",
+        "phpunit/phpunit": ">=8",
+        "vimeo/psalm": "^4.23"
+    }
+}
