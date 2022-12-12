@@ -2,6 +2,7 @@
 
 $finder = PhpCsFixer\Finder::create()
     ->path('src')->name('*.php')
+        ->exclude('Annotations')
     ->path('tests')->name('*.php')
     ->in(__DIR__)
 ;
@@ -30,8 +31,7 @@ return (new PhpCsFixer\Config())
         'no_blank_lines_after_phpdoc' => true,
         'no_extra_blank_lines' => true,
         'return_type_declaration' => ['space_before' => 'none'],
-        'no_trailing_comma_in_list_call' => true,
-        'no_trailing_comma_in_singleline_array' => true,
+        'no_trailing_comma_in_singleline' => true,
         'no_unneeded_control_parentheses' => true,
         'no_unneeded_curly_braces' => true,
         'short_scalar_cast' => true,

@@ -5,6 +5,8 @@ namespace Radebatz\OpenApi\Extras\Annotations;
 use OpenApi\Annotations as OA;
 
 /**
+ * Middleware name(s) container.
+ *
  * @Annotation
  */
 class Middleware extends OA\Attachable

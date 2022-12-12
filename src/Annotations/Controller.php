@@ -7,10 +7,6 @@ use OpenApi\Annotations as OA;
 /**
  * Class level annotation to configure all endpoints of a (controller) class.
  *
- * Currently, the following might be shared across all endpoints:
- * - path prefix
- * - (default) responses
- *
  * @Annotation
  */
 class Controller extends OA\Attachable
