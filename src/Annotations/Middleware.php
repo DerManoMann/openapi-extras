@@ -26,7 +26,7 @@ class Middleware extends OA\Attachable
     /**
      * @inheritdoc
      */
-    public function allowedParents() : ?array
+    public function allowedParents(): ?array
     {
         return [OA\Operation::class, Controller::class];
     }
