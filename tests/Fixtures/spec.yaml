@@ -8,13 +8,13 @@ info:
 paths:
   /mw:
     get:
-      operationId: 6ef06119da05868b8f653e456f66c595
+      operationId: mw
       responses:
         '200':
           description: 'All good'
   /foo/prefixed:
     get:
-      operationId: 8b9fbe146f3ab8d46b356ad5e60a3f3d
+      operationId: prefixed
       responses:
         '200':
           description: 'All good'

@@ -16,6 +16,7 @@ class PrefixedController
     /**
      * @OA\Get(
      *     path="/prefixed",
+     *     operationId="prefixed",
      *     @OA\Response(response="200", description="All good")
      * )
      */

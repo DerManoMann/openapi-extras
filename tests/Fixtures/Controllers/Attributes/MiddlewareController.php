@@ -11,7 +11,7 @@ use Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\FooMiddleware;
 #[OAX\Middleware([FooMiddleware::class])]
 class MiddlewareController
 {
-    #[OAT\Get(path: '/mw')]
+    #[OAT\Get(path: '/mw', operationId: 'mw')]
     #[OAT\Response(response: 200, description: 'All good')]
     #[OAX\Middleware([BarMiddleware::class])]
     public function mw(): mixed

@@ -9,7 +9,7 @@ use Radebatz\OpenApi\Extras\Attributes as OAX;
 #[OAT\Response(response: 403, description: 'Not allowed')]
 class PrefixedController
 {
-    #[OAT\Get(path: '/prefixed')]
+    #[OAT\Get(path: '/prefixed', operationId: 'prefixed')]
     #[OAT\Response(response: 200, description: 'All good')]
     public function prefixed(): mixed
     {
