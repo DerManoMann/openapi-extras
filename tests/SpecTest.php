@@ -34,7 +34,7 @@ class SpecTest extends TestCase
     /**
      * @dataProvider specTestProvider
      */
-    public function testSpec(Generator $generator, Finder $finder) : void
+    public function testSpec(Generator $generator, Finder $finder): void
     {
         $openapi = $generator
             ->addProcessor(new MergeControllerDefaults(), BuildPaths::class)
