@@ -23,11 +23,85 @@ Once composer is installed, execute the following command in your project root t
 composer require radebatz/openapi-extras
 ```
 
+## Registering the library
+
+Use of the included annotations/attributes requires registration of a custom processor.
+Also, in the case of annotations the registration of the custom alias / namespace used.
+
+### Register library for attriutes
+
+```php
+<?php
+
+use OpenApi\Generator;
+use OpenApi\Processors\BuildPaths;
+use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
+
+$generator = new Generator();
+
+// ...
+
+$generator->addProcessor(new MergeControllerDefaults(), BuildPaths::class);
+
+// ...
+```
+
+### Register library for annotations
+
+```php
+<?php
+
+use OpenApi\Generator;
+use OpenApi\Processors\BuildPaths;
+use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
+
+$generator = new Generator();
+
+// ...
+
+$namespace = 'Radebatz\\OpenApi\\Extras\\Annotations';
+$generator
+    ->addNamespace($namespace . '\\')
+    ->addAlias('oax', $namespace),
+    ->addProcessor(new MergeControllerDefaults(), BuildPaths::class);
+
+// ...
+```
+
 ## Basic usage
 
-**Controller**
+### Controller
+
+The controller annotation may be used on class level to add an optional prefix to all
+operations of that controller class.
+
+Also, it can be used to add default responses to all endpoints.
+
+Example adding the `/foo` prefix and a `403` response to all operations in the `MyController` class.
+
 ```php
+<?php declare(strict_types=1);
+
+use OpenApi\Attributes as OAT;
+use Radebatz\OpenApi\Extras\Attributes as OAX;
+
+#[OAX\Controller(prefix: '/foo')]
+#[OAT\Response(response: 403, description: 'Not allowed')]
+class PrefixedController
+{
+    #[OAT\Get(path: '/prefixed', operationId: 'prefixed')]
+    #[OAT\Response(response: 200, description: 'All good')]
+    public function prefixed(): mixed
+    {
+        return 'prefixed';
+    }
+}
 ```
+
+### Middleware
+
+The `Middleware` annotation is currently not used but will be used by a future version
+of the [openappi-router](https://github.com/DerManoMann/openapi-router) project.
 
 ## License
 
