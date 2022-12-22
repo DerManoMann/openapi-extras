@@ -1,0 +1,23 @@
+openapi: 3.0.0
+info:
+  title: 'Example for response examples value'
+  description: 'Example info'
+  contact:
+    name: 'Swagger API Team'
+  version: '1.0'
+paths:
+  /mw:
+    get:
+      operationId: 6ef06119da05868b8f653e456f66c595
+      responses:
+        '200':
+          description: 'All good'
+  /foo/prefixed:
+    get:
+      operationId: 8b9fbe146f3ab8d46b356ad5e60a3f3d
+      responses:
+        '200':
+          description: 'All good'
+        '403':
+          description: 'Not allowed'
+components: {  }

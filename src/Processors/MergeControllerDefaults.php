@@ -25,7 +25,7 @@ class MergeControllerDefaults
                 foreach ($operations as $operation) {
                     if ($this->contextMatch($operation->_context, $controller->_context)) {
                         // update path
-                        if ($controller->prefix) {
+                        if ($controller->prefix && !Generator::isDefault($controller->prefix)) {
                             $path = $controller->prefix . '/' . $operation->path;
                             $operation->path = str_replace('//', '/', $path);
                         }
@@ -46,8 +46,8 @@ class MergeControllerDefaults
 
     protected function needsProcessing(Controller $controller): bool
     {
-        return !$controller->prefix
-            || !$controller->responses
+        return ($controller->prefix && !Generator::isDefault($controller->prefix))
+            || $controller->responses
             || !Generator::isDefault($controller->attachables);
     }
 
@@ -60,7 +60,7 @@ class MergeControllerDefaults
 
     protected function clearMerged(Analysis $analysis, $annotations): void
     {
-        if (Generator::isDefault($annotations)) {
+        if (Generator::isDefault($annotations) || !$annotations) {
             return;
         }
 

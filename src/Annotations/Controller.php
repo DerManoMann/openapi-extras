@@ -30,4 +30,12 @@ class Controller extends OA\Attachable
         OA\Response::class   => ['responses', 'response'],
         OA\Attachable::class => ['attachables'],
     ];
+
+    /**
+     * @inheritdoc
+     */
+    public function allowedParents(): ?array
+    {
+        return [];
+    }
 }

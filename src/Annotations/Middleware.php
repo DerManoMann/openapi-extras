@@ -31,6 +31,9 @@ class Middleware extends OA\Attachable
         return [OA\Operation::class, Controller::class];
     }
 
+    /**
+     * @var array<string|class-string>
+     */
     public function __construct(array $names)
     {
         parent::__construct([]);
