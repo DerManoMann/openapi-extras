@@ -25,10 +25,12 @@ class SpecTest extends TestCase
             $this->getAnnotationFinder(),
         ];
 
-        yield 'attributes' => [
-            new Generator(),
-            $this->getAttributesFinder(),
-        ];
+        if (\PHP_VERSION_ID >= 80100) {
+            yield 'attributes' => [
+                new Generator(),
+                $this->getAttributesFinder(),
+            ];
+        }
     }
 
     /**
