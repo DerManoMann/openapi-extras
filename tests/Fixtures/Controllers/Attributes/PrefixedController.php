@@ -11,7 +11,7 @@ class PrefixedController
 {
     #[OAT\Get(path: '/prefixed', operationId: 'prefixed')]
     #[OAT\Response(response: 200, description: 'All good')]
-    public function prefixed(): mixed
+    public function prefixed()
     {
         return 'prefixed';
     }

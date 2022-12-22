@@ -32,7 +32,7 @@ class Middleware extends OA\Attachable
     }
 
     /**
-     * @var array<string|class-string>
+     * @paramarray<string|class-string>  $names
      */
     public function __construct(array $names)
     {

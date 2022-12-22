@@ -14,7 +14,7 @@ class MiddlewareController
     #[OAT\Get(path: '/mw', operationId: 'mw')]
     #[OAT\Response(response: 200, description: 'All good')]
     #[OAX\Middleware([BarMiddleware::class])]
-    public function mw(): mixed
+    public function mw()
     {
         return 'mw';
     }

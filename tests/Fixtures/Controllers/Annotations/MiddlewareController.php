@@ -20,7 +20,7 @@ class MiddlewareController
      *     @OAX\Middleware(names={"Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\BarMiddleware"})
      * )
      */
-    public function mw(): mixed
+    public function mw()
     {
         return 'mw';
     }
