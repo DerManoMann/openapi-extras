@@ -6,6 +6,14 @@ info:
     name: 'Swagger API Team'
   version: '1.0'
 paths:
+  /shared-response:
+    get:
+      operationId: shared-response
+      responses:
+        '200':
+          description: 'All good'
+        '403':
+          description: 'Not allowed'
   /mw:
     get:
       operationId: mw
@@ -18,6 +26,4 @@ paths:
       responses:
         '200':
           description: 'All good'
-        '403':
-          description: 'Not allowed'
 components: {  }

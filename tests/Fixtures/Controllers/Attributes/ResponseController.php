@@ -5,13 +5,14 @@ namespace Radebatz\OpenApi\Extras\Tests\Fixtures\Controllers\Attributes;
 use OpenApi\Attributes as OAT;
 use Radebatz\OpenApi\Extras\Attributes as OAX;
 
-#[OAX\Controller(prefix: '/foo')]
-class PrefixedController
+#[OAX\Controller()]
+#[OAT\Response(response: 403, description: 'Not allowed')]
+class ResponseController
 {
-    #[OAT\Get(path: '/prefixed', operationId: 'prefixed')]
+    #[OAT\Get(path: '/shared-response', operationId: 'shared-response')]
     #[OAT\Response(response: 200, description: 'All good')]
-    public function prefixed()
+    public function sharedResponse()
     {
-        return 'prefixed';
+        return 'shared-response';
     }
 }

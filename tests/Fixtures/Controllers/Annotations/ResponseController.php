@@ -7,21 +7,20 @@ use Radebatz\OpenApi\Extras\Annotations as OAX;
 
 /**
  * @OAX\Controller(
- *     prefix="/foo"
+ *     @OA\Response(response="403", description="Not allowed")
  * )
  */
-class PrefixedController
+class ResponseController
 {
     /**
      * @OA\Get(
-     *     path="/prefixed",
-     *     operationId="prefixed",
-     *
+     *     path="/shared-response",
+     *     operationId="shared-response",
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function prefixed()
+    public function sharedResponse()
     {
-        return 'prefixed';
+        return 'shared-response';
     }
 }
