@@ -23,7 +23,7 @@ class MergeControllerDefaults
         foreach ($controllers as $controller) {
             if ($this->needsProcessing($controller)) {
                 foreach ($operations as $operation) {
-                    if ($this->contextMatch($operation->_context, $controller->_context)) {
+                    if ($this->isContextMatch($operation->_context, $controller->_context)) {
                         // update path
                         if ($controller->prefix && !Generator::isDefault($controller->prefix)) {
                             $path = $controller->prefix . '/' . $operation->path;
@@ -33,6 +33,12 @@ class MergeControllerDefaults
                         if ($controller->responses) {
                             $operation->merge($controller->responses, true);
                         }
+
+                        if ($controller->headers && !Generator::isDefault($operation->responses)) {
+                            foreach ($operation->responses as $response) {
+                                $response->merge($controller->headers, true);
+                            }
+                        }
                     }
                 }
             }
@@ -40,6 +46,7 @@ class MergeControllerDefaults
 
         foreach ($controllers as $controller) {
             $this->clearMerged($analysis, $controller);
+            $this->clearMerged($analysis, $controller->headers);
             $this->clearMerged($analysis, $controller->responses);
         }
     }
@@ -47,11 +54,12 @@ class MergeControllerDefaults
     protected function needsProcessing(Controller $controller): bool
     {
         return ($controller->prefix && !Generator::isDefault($controller->prefix))
+            || $controller->headers
             || $controller->responses
             || !Generator::isDefault($controller->attachables);
     }
 
-    protected function contextMatch(?Context $context1, ?Context $context2): bool
+    protected function isContextMatch(?Context $context1, ?Context $context2): bool
     {
         return $context1 && $context2
             && $context1->namespace === $context2->namespace
