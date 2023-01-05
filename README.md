@@ -75,7 +75,7 @@ $generator
 The controller annotation may be used on class level to add an optional prefix to all
 operations of that controller class.
 
-Also, it can be used to add default responses to all endpoints.
+Also, it can be used to share responses and headers with all endpoints.
 
 Example adding the `/foo` prefix and a `403` response to all operations in the `MyController` class.
 
