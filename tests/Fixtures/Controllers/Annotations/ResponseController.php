@@ -14,13 +14,13 @@ class ResponseController
 {
     /**
      * @OA\Get(
-     *     path="/shared-response",
-     *     operationId="shared-response",
+     *     path="/response",
+     *     operationId="response",
      *     @OA\Response(response="200", description="All good")
      * )
      */
-    public function sharedResponse()
+    public function response()
     {
-        return 'shared-response';
+        return 'response';
     }
 }
