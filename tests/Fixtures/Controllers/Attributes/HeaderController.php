@@ -13,7 +13,7 @@ use Radebatz\OpenApi\Extras\Attributes as OAX;
 )]
 class HeaderController
 {
-    #[OAT\Get(path: '/header', operationId: 'header')]
+    #[OAT\Get(path: '/header1', operationId: 'header1')]
     #[OAT\Response(
         response: 200,
         description: 'All good',
@@ -21,8 +21,18 @@ class HeaderController
             new OAT\Header(header: 'X-Custom', description: 'Custom header', schema: new OAT\Schema(type: 'string')),
         ]
     )]
-    public function header()
+    public function header1()
     {
-        return 'header';
+        return 'header1';
+    }
+
+    #[OAT\Post(path: '/header2', operationId: 'header2')]
+    #[OAT\Response(
+        response: 400,
+        description: 'Invalid'
+    )]
+    public function header2()
+    {
+        return 'header2';
     }
 }
