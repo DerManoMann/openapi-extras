@@ -9,10 +9,17 @@ use Radebatz\OpenApi\Extras\Attributes as OAX;
 #[OAT\Response(response: 403, description: 'Not allowed')]
 class ResponseController
 {
-    #[OAT\Get(path: '/response', operationId: 'response')]
+    #[OAT\Get(path: '/response1', operationId: 'response1')]
     #[OAT\Response(response: 200, description: 'All good')]
-    public function response()
+    public function response1()
     {
-        return 'response';
+        return 'response1';
+    }
+
+    #[OAT\Post(path: '/response2', operationId: 'response2')]
+    #[OAT\Response(response: 400, description: 'Invalid')]
+    public function response2()
+    {
+        return 'response2';
     }
 }

@@ -6,17 +6,25 @@ info:
     name: 'Swagger API Team'
   version: '1.0'
 paths:
-  /response:
+  /response1:
     get:
-      operationId: response
+      operationId: response1
       responses:
         '200':
           description: 'All good'
         '403':
           description: 'Not allowed'
-  /header:
+  /response2:
+    post:
+      operationId: response2
+      responses:
+        '400':
+          description: Invalid
+        '403':
+          description: 'Not allowed'
+  /header1:
     get:
-      operationId: header
+      operationId: header1
       responses:
         '200':
           description: 'All good'
@@ -25,6 +33,17 @@ paths:
               description: 'Custom header'
               schema:
                 type: string
+            X-Shared:
+              description: 'Shared header'
+              schema:
+                type: string
+  /header2:
+    post:
+      operationId: header2
+      responses:
+        '400':
+          description: Invalid
+          headers:
             X-Shared:
               description: 'Shared header'
               schema:
