@@ -9,10 +9,10 @@ use Radebatz\OpenApi\Extras\Attributes as OAX;
 #[OAT\Response(response: 403, description: 'Not allowed')]
 class ResponseController
 {
-    #[OAT\Get(path: '/shared-response', operationId: 'shared-response')]
+    #[OAT\Get(path: '/response', operationId: 'response')]
     #[OAT\Response(response: 200, description: 'All good')]
-    public function sharedResponse()
+    public function response()
     {
-        return 'shared-response';
+        return 'response';
     }
 }
