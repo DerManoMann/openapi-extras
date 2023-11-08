@@ -7,6 +7,7 @@ use Radebatz\OpenApi\Extras\Annotations as OAX;
 
 /**
  * @OAX\Controller(
+ *
  *     @OAX\Middleware(names={"Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\FooMiddleware"})
  * )
  */
@@ -16,7 +17,9 @@ class MiddlewareController
      * @OA\Get(
      *     path="/mw",
      *     operationId="mw",
+     *
      *     @OA\Response(response="200", description="All good"),
+     *
      *     @OAX\Middleware(names={"Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\BarMiddleware"})
      * )
      */
