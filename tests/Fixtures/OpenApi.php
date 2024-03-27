@@ -9,6 +9,7 @@ use OpenApi\Annotations as OA;
  *     version="1.0",
  *     title="Example for response examples value",
  *     description="Example info",
+ *
  *     @OA\Contact(name="Swagger API Team")
  * )
  */

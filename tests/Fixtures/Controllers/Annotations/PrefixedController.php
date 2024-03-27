@@ -8,6 +8,7 @@ use Radebatz\OpenApi\Extras\Annotations as OAX;
 /**
  * @OAX\Controller(
  *     prefix="/foo",
+ *
  *     @OA\Response(response="403", description="Not allowed")
  * )
  */
@@ -17,6 +18,7 @@ class PrefixedController
      * @OA\Get(
      *     path="/prefixed",
      *     operationId="prefixed",
+     *
      *     @OA\Response(response="200", description="All good")
      * )
      */
