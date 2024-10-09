@@ -28,7 +28,10 @@ class Middleware extends OA\Attachable
      */
     public function allowedParents(): ?array
     {
-        return [OA\Operation::class, Controller::class];
+        return [
+            OA\Operation::class,
+            Controller::class,
+        ];
     }
 
     /**
