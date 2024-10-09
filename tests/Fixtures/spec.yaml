@@ -60,4 +60,22 @@ paths:
       responses:
         '200':
           description: 'All good'
+  /mixed:
+    get:
+      operationId: mixed
+      responses:
+        '200':
+          description: 'All good'
+          headers:
+            X-Shared:
+              description: 'Shared header'
+              schema:
+                type: string
+        '403':
+          description: 'Not allowed'
+          headers:
+            X-Shared:
+              description: 'Shared header'
+              schema:
+                type: string
 components: {  }

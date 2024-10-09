@@ -36,7 +36,12 @@ class MergeControllerDefaults
 
                         if ($controller->headers && !Generator::isDefault($operation->responses)) {
                             foreach ($operation->responses as $response) {
-                                $response->merge($controller->headers, true);
+                                foreach ($controller->headers as $header) {
+                                    if (Generator::isDefault($response->headers) || !in_array($header, $response->headers, true)) {
+                                        // avoid duplicates (Attributes: shared headers are already merged into shared responses)
+                                        $response->merge($controller->headers, true);
+                                    }
+                                }
                             }
                         }
                     }
