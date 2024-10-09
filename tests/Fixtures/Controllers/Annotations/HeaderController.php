@@ -7,7 +7,11 @@ use Radebatz\OpenApi\Extras\Annotations as OAX;
 
 /**
  * @OAX\Controller(
- *     @OA\Header(header="X-Shared", @OA\Schema(type="string"), description="Shared header")
+ *     @OA\Header(
+ *         header="X-Shared",
+ *         description="Shared header",
+ *         @OA\Schema(type="string")
+ *     )
  * )
  */
 class HeaderController
@@ -16,7 +20,15 @@ class HeaderController
      * @OA\Get(
      *     path="/header1",
      *     operationId="header1",
-     *     @OA\Response(response="200", description="All good", @OA\Header(header="X-Custom", description="Custom header", @OA\Schema(type="string")))
+     *     @OA\Response(
+     *         response="200",
+     *         description="All good",
+     *         @OA\Header(
+     *             header="X-Custom",
+     *             description="Custom header",
+     *             @OA\Schema(type="string")
+     *         )
+     *     )
      * )
      */
     public function header1()

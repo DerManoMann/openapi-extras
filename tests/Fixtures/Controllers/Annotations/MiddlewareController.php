@@ -4,11 +4,11 @@ namespace Radebatz\OpenApi\Extras\Tests\Fixtures\Controllers\Annotations;
 
 use OpenApi\Annotations as OA;
 use Radebatz\OpenApi\Extras\Annotations as OAX;
+use Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware as Middleware;
 
 /**
  * @OAX\Controller(
- *
- *     @OAX\Middleware(names={"Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\FooMiddleware"})
+ *     @OAX\Middleware(names={Middleware\FooMiddleware::class})
  * )
  */
 class MiddlewareController
@@ -17,10 +17,8 @@ class MiddlewareController
      * @OA\Get(
      *     path="/mw",
      *     operationId="mw",
-     *
      *     @OA\Response(response="200", description="All good"),
-     *
-     *     @OAX\Middleware(names={"Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\BarMiddleware"})
+     *     @OAX\Middleware(names={Middleware\BarMiddleware::class})
      * )
      */
     public function mw()
