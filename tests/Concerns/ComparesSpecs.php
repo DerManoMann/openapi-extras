@@ -13,7 +13,6 @@ trait ComparesSpecs
      *
      * @param array|OpenApi|\stdClass|string $actual     The generated output
      * @param array|OpenApi|\stdClass|string $expected   The specification
-     * @param string                         $message
      * @param bool                           $normalized flag indicating whether the inputs are already normalized or
      *                                                   not
      */
