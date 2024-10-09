@@ -25,10 +25,10 @@ composer require radebatz/openapi-extras
 
 ## Registering the library
 
-Use of the included annotations/attributes requires registration of a custom processor.
-Also, in the case of annotations the registration of the custom alias / namespace used.
+Use of the included annotations/attributes requires registration of a custom `swagger-php` processor.
+Also, in the case of annotations, the registration of custom aliases / namespaces needs to be done manually.
 
-### Register library for attriutes
+### Register library for attributes
 
 ```php
 <?php
@@ -38,9 +38,6 @@ use OpenApi\Processors\BuildPaths;
 use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
 
 $generator = new Generator();
-
-// ...
-
 $generator->addProcessor(new MergeControllerDefaults(), BuildPaths::class);
 
 // ...
@@ -55,11 +52,9 @@ use OpenApi\Generator;
 use OpenApi\Processors\BuildPaths;
 use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
 
-$generator = new Generator();
-
-// ...
-
 $namespace = 'Radebatz\\OpenApi\\Extras\\Annotations';
+
+$generator = new Generator();
 $generator
     ->addNamespace($namespace . '\\')
     ->addAlias('oax', $namespace),
@@ -70,14 +65,15 @@ $generator
 
 ## Basic usage
 
-### Controller
+### `Controller`
 
-The controller annotation may be used on class level to add an optional prefix to all
-operations of that controller class.
+The controller annotation may be used to:
+* add an optional url prefix to all operations in the class
+* share one or more `Response`s across all operations
+* share one or more `Header`'s across all operations
+* share one or more `Middleware`'s across all operations
 
-Also, it can be used to add default responses to all endpoints.
-
-Example adding the `/foo` prefix and a `403` response to all operations in the `MyController` class.
+Example for adding the `/foo` prefix and a `403` response to all operations in the `MyController` class.
 
 ```php
 <?php declare(strict_types=1);
@@ -98,10 +94,35 @@ class PrefixedController
 }
 ```
 
-### Middleware
+### `Middleware`
 
 The `Middleware` annotation is currently not used but will be used by a future version
-of the [openappi-router](https://github.com/DerManoMann/openapi-router) project.
+of the [openapi-router](https://github.com/DerManoMann/openapi-router) project.
+
+`Middleware` annotations allow to share a list of middleware names either individually or across all operations (via the `Controller` annotation).
+
+```php
+<?php declare(strict_types=1);
+
+namespace Radebatz\OpenApi\Extras\Tests\Fixtures\Controllers\Attributes;
+
+use OpenApi\Attributes as OAT;
+use Radebatz\OpenApi\Extras\Attributes as OAX;
+
+#[OAX\Controller()]
+#[OAX\Middleware([MyFooMiddleware::class])]
+class MiddlewareController
+{
+    #[OAT\Get(path: '/mw', operationId: 'mw')]
+    #[OAT\Response(response: 200, description: 'All good')]
+    #[OAX\Middleware(['BarMiddleware'])]
+    public function mw()
+    {
+        return 'mw';
+    }
+}
+```
+
 
 ## License
 

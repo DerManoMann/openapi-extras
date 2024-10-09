@@ -6,7 +6,6 @@ use OpenApi\Attributes as OAT;
 use Radebatz\OpenApi\Extras\Attributes as OAX;
 
 #[OAX\Controller(prefix: '/foo')]
-#[OAT\Response(response: 403, description: 'Not allowed')]
 class PrefixedController
 {
     #[OAT\Get(path: '/prefixed', operationId: 'prefixed')]
