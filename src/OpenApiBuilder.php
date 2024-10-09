@@ -9,6 +9,9 @@ use Radebatz\OpenApi\Extras\Processors\Customizers;
 
 class OpenApiBuilder
 {
+    /**
+     * @var string|array
+     */
     protected $paths = null;
     protected array $customizers = [];
 
