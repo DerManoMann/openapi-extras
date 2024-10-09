@@ -44,7 +44,8 @@ return (new PhpCsFixer\Config())
         'global_namespace_import' => ['import_classes' => false, 'import_constants' => null, 'import_functions' => null],
 
         'no_empty_phpdoc' => true,
-        // 7.3 only 'no_superfluous_phpdoc_tags' => true,
+        'no_superfluous_phpdoc_tags' => true,
+
         'phpdoc_align' => true,
         'general_phpdoc_tag_rename' => true,
         'phpdoc_inline_tag_normalizer' => true,

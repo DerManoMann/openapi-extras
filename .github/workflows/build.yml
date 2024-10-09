@@ -15,7 +15,7 @@ jobs:
       fail-fast: true
       matrix:
         operating-system: [ ubuntu-latest ]
-        php: [ '7.4', '8.0', '8.1', '8.2' ]
+        php: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
         dependencies: [ 'lowest', 'highest' ]
         exclude:
           - php: '8.1'
@@ -50,7 +50,7 @@ jobs:
           vendor/bin/phpunit --configuration phpunit.xml.dist --coverage-text --coverage-clover build/logs/clover.xml
 
       - name: Code coverage upload to Coveralls
-        if: matrix.php == '8.1' && matrix.dependencies == 'highest'
+        if: matrix.php == '8.3' && matrix.dependencies == 'highest'
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
 use Symfony\Component\Finder\Finder;
 
-class SpecTest extends TestCase
+class AnnotationsTest extends TestCase
 {
     use Concerns\ComparesSpecs;
     use Concerns\UsesAnnotations;
@@ -36,7 +36,7 @@ class SpecTest extends TestCase
     /**
      * @dataProvider specTestProvider
      */
-    public function testSpec(Generator $generator, Finder $finder): void
+    public function testAnnotations(Generator $generator, Finder $finder): void
     {
         $openapi = $generator
             ->addProcessor(new MergeControllerDefaults(), BuildPaths::class)
