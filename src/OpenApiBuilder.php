@@ -13,6 +13,12 @@ class OpenApiBuilder
      */
     protected $paths = null;
     protected array $customizers = [];
+    protected array $config = [];
+
+    public function __construct(array $config = [])
+    {
+        $this->config = $config;
+    }
 
     /**
      * Only process endpoints matching the given `$paths` patterns.
@@ -46,8 +52,8 @@ class OpenApiBuilder
 
     public function build(): Generator
     {
-        $config = [];
         $generator = new Generator();
+        $config = $this->config;
 
         if ($this->paths) {
             $config['pathFilter'] = ['paths' => $this->paths];
