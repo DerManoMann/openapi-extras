@@ -17,9 +17,9 @@ class CustomizersTest extends TestCase
         $generator->setConfig([
             'customizers' => [
                 'mappings' => [
-                    OpenApi::class => [fn(OpenApi $openApi) => $openApi->openapi = OpenApi::VERSION_3_1_0],
-                ]
-            ]
+                    OpenApi::class => [fn (OpenApi $openApi) => $openApi->openapi = OpenApi::VERSION_3_1_0],
+                ],
+            ],
         ]);
 
         $openapi = $generator->generate([__DIR__ . '/../Fixtures/OpenApi.php']);

@@ -2,7 +2,6 @@
 
 namespace Radebatz\OpenApi\Extras;
 
-use InvalidArgumentException;
 use OpenApi\Annotations\AbstractAnnotation;
 use OpenApi\Generator;
 use Radebatz\OpenApi\Extras\Processors\Customizers;
@@ -33,7 +32,7 @@ class OpenApiBuilder
     public function addCustomizer(string $class, callable $customizer): OpenApiBuilder
     {
         if (!is_subclass_of($class, AbstractAnnotation::class)) {
-            throw new InvalidArgumentException(sprintf('Class "%s" must implement "%s".', $class, AbstractAnnotation::class));
+            throw new \InvalidArgumentException(sprintf('Class "%s" must implement "%s".', $class, AbstractAnnotation::class));
         }
 
         if (!array_key_exists($class, $this->customizers)) {

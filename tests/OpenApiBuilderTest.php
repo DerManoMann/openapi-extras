@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 class OpenApiBuilderTest extends TestCase
 {
-    public function testCustomizers() : void
+    public function testCustomizers(): void
     {
 
     }

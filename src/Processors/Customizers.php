@@ -6,7 +6,8 @@ use OpenApi\Analysis;
 use OpenApi\Annotations\AbstractAnnotation;
 
 /**
- * Allows to
+ * Allows for each annotation class to register one or more callbacks which
+ * then can modify each instance of that class.
  */
 class Customizers
 {
