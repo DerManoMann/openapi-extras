@@ -8,10 +8,6 @@ use Radebatz\OpenApi\Extras\Processors\Customizers;
 
 class OpenApiBuilder
 {
-    /**
-     * @var string|array
-     */
-    protected $paths = null;
     protected array $customizers = [];
     protected array $config = [];
 
@@ -27,7 +23,49 @@ class OpenApiBuilder
      */
     public function pathsToMatch($paths): OpenApiBuilder
     {
-        $this->paths = $paths;
+        $this->config['pathFilter'] = ['paths' => $paths];
+
+        return $this;
+    }
+
+    /**
+     * Only process endpoints matching the given `$tags` patterns.
+     *
+     * @param string|array $tags
+     */
+    public function tagsToMatch($tags): OpenApiBuilder
+    {
+        $this->config['pathFilter'] = ['tags' => $tags];
+
+        return $this;
+    }
+
+    /**
+     * Enable/disable cleaning up of unused components.
+     */
+    public function clearUnused(bool $enabled = true): OpenApiBuilder
+    {
+        $this->config['cleanUnusedComponents'] = ['enabled' => $enabled];
+
+        return $this;
+    }
+
+    /**
+     * Enable/disable hashing of operation ids.
+     */
+    public function operationIdHashing(bool $enabled = true): OpenApiBuilder
+    {
+        $this->config['operationId'] = ['hash' => $enabled];
+
+        return $this;
+    }
+
+    /**
+     * List og tags to keep even if unused.
+     */
+    public function tagWhitelist(array $whitelist): OpenApiBuilder
+    {
+        $this->config['augmentTags'] = ['whitelist' => $whitelist];
 
         return $this;
     }
@@ -54,10 +92,6 @@ class OpenApiBuilder
     {
         $generator = new Generator();
         $config = $this->config;
-
-        if ($this->paths) {
-            $config['pathFilter'] = ['paths' => $this->paths];
-        }
 
         if ($this->customizers) {
             $generator->getProcessorPipeline()
