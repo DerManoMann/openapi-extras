@@ -2,8 +2,8 @@
 
 namespace Radebatz\OpenApi\Extras\Tests;
 
-use OpenApi\Generator;
 use OpenApi\Annotations as OA;
+use OpenApi\Generator;
 use OpenApi\Processors\AugmentTags;
 use OpenApi\Processors\CleanUnusedComponents;
 use OpenApi\Processors\OperationId;
@@ -34,7 +34,7 @@ class OpenApiBuilderTest extends TestCase
         return null;
     }
 
-    public function testPathFilterConfig(): void
+    public function testPathFilterConfigMixed(): void
     {
         $builder = (new OpenApiBuilder())
             ->pathsToMatch('foo')
@@ -87,7 +87,7 @@ class OpenApiBuilderTest extends TestCase
     public function testAddCustomizer(): void
     {
         $builder = (new OpenApiBuilder())
-            ->addCustomizer(OA\Info::class, fn () => true);
+            ->addCustomizer(OA\Info::class, fn() => true);
         $pipes = $this->getPipes($builder->build());
         $customizers = $this->getPipe($pipes, Customizers::class);
 
@@ -95,5 +95,13 @@ class OpenApiBuilderTest extends TestCase
 
         $mappings = $customizers->getMappings();
         $this->assertCount(1, $mappings);
+    }
+
+    public function testAddCustomizerInvalidClass(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new OpenApiBuilder())
+            ->addCustomizer(\Exception::class, fn() => true);
     }
 }
