@@ -23,7 +23,11 @@ class OpenApiBuilder
      */
     public function pathsToMatch($paths): OpenApiBuilder
     {
-        $this->config['pathFilter'] = ['paths' => $paths];
+        if (!array_key_exists('pathFilter', $this->config)) {
+            $this->config['pathFilter'] = [];
+        }
+
+        $this->config['pathFilter']['paths'] = (array) $paths;
 
         return $this;
     }
@@ -35,7 +39,11 @@ class OpenApiBuilder
      */
     public function tagsToMatch($tags): OpenApiBuilder
     {
-        $this->config['pathFilter'] = ['tags' => $tags];
+        if (!array_key_exists('pathFilter', $this->config)) {
+            $this->config['pathFilter'] = [];
+        }
+
+        $this->config['pathFilter']['tags'] = (array) $tags;
 
         return $this;
     }
