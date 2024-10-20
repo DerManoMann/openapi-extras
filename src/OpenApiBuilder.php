@@ -4,8 +4,15 @@ namespace Radebatz\OpenApi\Extras;
 
 use OpenApi\Annotations\AbstractAnnotation;
 use OpenApi\Generator;
+use OpenApi\Processors\BuildPaths;
 use Radebatz\OpenApi\Extras\Processors\Customizers;
+use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
 
+/**
+ * A simple `builder` wrapper around the OpenApi `Generator` class.
+ *
+ * Provides explicit programmatic access to configuring the processors  of the `swagger-php` library.
+ */
 class OpenApiBuilder
 {
     protected array $customizers = [];
@@ -103,6 +110,7 @@ class OpenApiBuilder
 
         if ($this->customizers) {
             $generator->getProcessorPipeline()
+                ->insert(new MergeControllerDefaults(), BuildPaths::class)
                 ->add(new Customizers());
             $config['customizers']['mappings'] = $this->customizers;
         }
