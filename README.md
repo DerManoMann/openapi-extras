@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Introduction
-Re-useable annotations for [swagger-php](https://github.com/zircote/swagger-php).
+Extra attributes/annotations and other bits for [swagger-php](https://github.com/zircote/swagger-php).
 
 ## Installation
 
@@ -28,6 +28,21 @@ composer require radebatz/openapi-extras
 Use of the included annotations/attributes requires registration of a custom `swagger-php` processor.
 Also, in the case of annotations, the registration of custom aliases / namespaces needs to be done manually.
 
+### Using the Builder
+
+When using the `OpenApiBuilder` no additional registration code is required as the builder will always
+configure the required `MergeControllerDefaults` processor.
+
+```php
+<?php
+
+use Radebatz\OpenApi\Extras\OpenApiBuilder;
+
+$generator = (new OpenApiBuilder())->build();
+
+// ...
+```
+
 ### Register library for attributes
 
 ```php
@@ -38,7 +53,8 @@ use OpenApi\Processors\BuildPaths;
 use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
 
 $generator = new Generator();
-$generator->addProcessor(new MergeControllerDefaults(), BuildPaths::class);
+$generator->getProcessorPipeline()
+            ->insert(new MergeControllerDefaults(), BuildPaths::class);
 
 // ...
 ```
@@ -58,12 +74,35 @@ $generator = new Generator();
 $generator
     ->addNamespace($namespace . '\\')
     ->addAlias('oax', $namespace),
-    ->addProcessor(new MergeControllerDefaults(), BuildPaths::class);
+    ->getProcessorPipeline()
+    ->insert(new MergeControllerDefaults(), BuildPaths::class);
 
 // ...
 ```
 
 ## Basic usage
+
+### `OpenApiBuilder`
+
+The builder aims to simplify configuring the `swagger-php` `Generator` class by implementing
+explicit methods to configure all default processors.
+Futhermore, it also adds a new `Customizer` processor which allows to pre-process all instances
+of a given OpenApi annotation/attribute by registering callbacks.
+
+```php
+<?php declare(strict_types=1);
+
+use OpenApi\Annotations as OA;
+use Radebatz\OpenApi\Extras\OpenApiBuilder;
+
+$generator = (new OpenApiBuilder())
+                 ->addCustomizer(OA\Info::class, fn (OA\Info $info) => $info->description = 'Foo')
+                 ->tagsToMatch(['admin'])
+                 ->clearUnused(enabled: true)
+                 ->operationIdHashing(enabled: false)
+                 ->pathsToMatch(['/api'])
+                 ->build();
+```
 
 ### `Controller`
 
