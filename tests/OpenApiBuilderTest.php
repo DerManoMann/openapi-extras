@@ -87,7 +87,7 @@ class OpenApiBuilderTest extends TestCase
     public function testAddCustomizer(): void
     {
         $builder = (new OpenApiBuilder())
-            ->addCustomizer(OA\Info::class, fn() => true);
+            ->addCustomizer(OA\Info::class, fn () => true);
         $pipes = $this->getPipes($builder->build());
         $customizers = $this->getPipe($pipes, Customizers::class);
 
@@ -102,6 +102,6 @@ class OpenApiBuilderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         (new OpenApiBuilder())
-            ->addCustomizer(\Exception::class, fn() => true);
+            ->addCustomizer(OA\Info::class, fn () => true);
     }
 }
