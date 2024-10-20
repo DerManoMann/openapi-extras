@@ -102,6 +102,7 @@ class OpenApiBuilderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         (new OpenApiBuilder())
-            ->addCustomizer(OA\Info::class, fn () => true);
+            // @phpstan-ignore-next-line
+            ->addCustomizer(\Exception::class, fn () => true);
     }
 }
