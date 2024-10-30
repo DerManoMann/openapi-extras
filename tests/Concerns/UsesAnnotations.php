@@ -11,6 +11,6 @@ trait UsesAnnotations
         return (new Finder())
             ->in(__DIR__ . '/../Fixtures')
             ->name('*.php')
-            ->exclude('Controllers/Attributes');
+            ->exclude(['Models', 'Controllers/Attributes']);
     }
 }

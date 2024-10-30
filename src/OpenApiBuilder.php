@@ -5,7 +5,10 @@ namespace Radebatz\OpenApi\Extras;
 use OpenApi\Annotations\AbstractAnnotation;
 use OpenApi\Generator;
 use OpenApi\Processors\BuildPaths;
+use OpenApi\Processors\ExpandEnums;
+use Psr\Log\LoggerInterface;
 use Radebatz\OpenApi\Extras\Processors\Customizers;
+use Radebatz\OpenApi\Extras\Processors\EnumDescription;
 use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
 
 /**
@@ -20,7 +23,9 @@ class OpenApiBuilder
 
     public function __construct(array $config = [])
     {
-        $this->config = $config;
+        $this->config = $config + [
+                'enumDescription' => ['enabled' => false],
+            ];
     }
 
     /**
@@ -76,6 +81,16 @@ class OpenApiBuilder
     }
 
     /**
+     * Enable/disable generation of enum descriptions.
+     */
+    public function enumDescription(bool $enabled = true): OpenApiBuilder
+    {
+        $this->config['enumDescription'] = ['enabled' => $enabled];
+
+        return $this;
+    }
+
+    /**
      * List og tags to keep even if unused.
      */
     public function tagWhitelist(array $whitelist): OpenApiBuilder
@@ -103,10 +118,15 @@ class OpenApiBuilder
         return $this;
     }
 
-    public function build(): Generator
+    public function build(?LoggerInterface $logger = null): Generator
     {
-        $generator = new Generator();
+        $generator = new Generator($logger);
         $config = $this->config;
+
+        if ($config['enumDescription']['enabled']) {
+            $generator->getProcessorPipeline()
+                ->insert(new EnumDescription(), ExpandEnums::class);
+        }
 
         if ($this->customizers) {
             $generator->getProcessorPipeline()
