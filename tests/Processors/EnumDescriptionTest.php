@@ -21,9 +21,9 @@ class EnumDescriptionTest extends TestCase
             ->build(new NullLogger());
 
         return $generator->generate([
-            __DIR__ . '/../Fixtures/AnimalEnum.php',
-            __DIR__ . '/../Fixtures/SimpleEnum.php',
-            __DIR__ . '/../Fixtures/EnumProperties.php',
+            __DIR__ . '/../Fixtures/Models/AnimalEnum.php',
+            __DIR__ . '/../Fixtures/Models/SimpleEnum.php',
+            __DIR__ . '/../Fixtures/Models/EnumProperties.php',
         ]);
     }
 
