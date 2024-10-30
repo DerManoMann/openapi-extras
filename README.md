@@ -93,6 +93,7 @@ of a given OpenApi annotation/attribute by registering callbacks.
 <?php declare(strict_types=1);
 
 use OpenApi\Annotations as OA;
+use Psr\Log\NullLogger;
 use Radebatz\OpenApi\Extras\OpenApiBuilder;
 
 $generator = (new OpenApiBuilder())
@@ -101,7 +102,8 @@ $generator = (new OpenApiBuilder())
                  ->clearUnused(enabled: true)
                  ->operationIdHashing(enabled: false)
                  ->pathsToMatch(['/api'])
-                 ->build();
+                 ->enumDescription()
+                 ->build(new NullLogger());
 ```
 
 ### `Controller`
