@@ -128,9 +128,11 @@ class OpenApiBuilder
                 ->insert(new EnumDescription(), ExpandEnums::class);
         }
 
+        $generator->getProcessorPipeline()
+            ->insert(new MergeControllerDefaults(), BuildPaths::class);
+
         if ($this->customizers) {
             $generator->getProcessorPipeline()
-                ->insert(new MergeControllerDefaults(), BuildPaths::class)
                 ->add(new Customizers());
             $config['customizers']['mappings'] = $this->customizers;
         }
