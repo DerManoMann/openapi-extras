@@ -26,6 +26,13 @@ class Middleware extends OA\Attachable
     /**
      * @inheritdoc
      */
+    public static $_types = [
+        'names' => '[string]',
+    ];
+
+    /**
+     * @inheritdoc
+     */
     public function allowedParents(): ?array
     {
         return [
@@ -37,9 +44,8 @@ class Middleware extends OA\Attachable
     /**
      * @paramarray<string|class-string>  $names
      */
-    public function __construct(array $names)
+    public function __construct(array $properties)
     {
-        parent::__construct([]);
-        $this->names = $names;
+        parent::__construct($properties);
     }
 }
