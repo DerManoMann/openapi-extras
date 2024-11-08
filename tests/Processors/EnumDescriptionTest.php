@@ -2,7 +2,7 @@
 
 namespace Radebatz\OpenApi\Extras\Tests\Processors;
 
-use OpenApi\Annotations\OpenApi;
+use OpenApi\Annotations as OA;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Radebatz\OpenApi\Extras\OpenApiBuilder;
@@ -14,7 +14,7 @@ class EnumDescriptionTest extends TestCase
 {
     // ------------------------------------------------------------------------
 
-    protected function generate(): OpenApi
+    protected function generate(): OA\OpenApi
     {
         $generator = (new OpenApiBuilder())
             ->enumDescription()

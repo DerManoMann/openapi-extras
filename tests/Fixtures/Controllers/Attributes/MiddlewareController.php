@@ -7,8 +7,9 @@ use Radebatz\OpenApi\Extras\Attributes as OAX;
 use Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\BarMiddleware;
 use Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\FooMiddleware;
 
-#[OAX\Controller()]
-#[OAX\Middleware([FooMiddleware::class])]
+#[OAX\Controller(
+    middlewares: [new OAX\Middleware([FooMiddleware::class])]
+)]
 class MiddlewareController
 {
     #[OAT\Get(path: '/mw', operationId: 'mw')]

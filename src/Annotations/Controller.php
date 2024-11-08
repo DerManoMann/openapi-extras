@@ -3,7 +3,6 @@
 namespace Radebatz\OpenApi\Extras\Annotations;
 
 use OpenApi\Annotations as OA;
-use OpenApi\Annotations\Header;
 
 /**
  * Class level annotation to configure all endpoints of a (controller) class.
@@ -35,8 +34,8 @@ class Controller extends OA\Attachable
      * @inheritdoc
      */
     public static $_nested = [
-        Header::class        => ['headers', 'header'],
-        OA\Response::class   => ['responses', 'response'],
+        OA\Header::class => ['headers', 'header'],
+        OA\Response::class => ['responses', 'response'],
         OA\Attachable::class => ['attachables'],
     ];
 

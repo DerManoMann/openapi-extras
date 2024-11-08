@@ -2,7 +2,7 @@
 
 namespace Radebatz\OpenApi\Extras;
 
-use OpenApi\Annotations\AbstractAnnotation;
+use OpenApi\Annotations as OA;
 use OpenApi\Generator;
 use OpenApi\Processors\BuildPaths;
 use OpenApi\Processors\ExpandEnums;
@@ -101,12 +101,12 @@ class OpenApiBuilder
     }
 
     /**
-     * @param class-string<AbstractAnnotation> $class
+     * @param class-string<OA\AbstractAnnotation> $class
      */
     public function addCustomizer(string $class, callable $customizer): OpenApiBuilder
     {
-        if (!is_subclass_of($class, AbstractAnnotation::class)) {
-            throw new \InvalidArgumentException(sprintf('Class "%s" must implement "%s".', $class, AbstractAnnotation::class));
+        if (!is_subclass_of($class, OA\AbstractAnnotation::class)) {
+            throw new \InvalidArgumentException(sprintf('Class "%s" must implement "%s".', $class, OA\AbstractAnnotation::class));
         }
 
         if (!array_key_exists($class, $this->customizers)) {

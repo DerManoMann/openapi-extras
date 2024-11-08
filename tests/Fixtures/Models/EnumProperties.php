@@ -2,14 +2,14 @@
 
 namespace Radebatz\OpenApi\Extras\Tests\Fixtures\Models;
 
-use OpenApi\Attributes as OA;
+use OpenApi\Attributes as OAT;
 
-#[OA\Schema()]
+#[OAT\Schema()]
 class EnumProperties
 {
-    #[OA\Property(enum: SimpleEnum::class)]
+    #[OAT\Property(enum: SimpleEnum::class)]
     protected SimpleEnum $simple;
 
-    #[OA\Property(enum: AnimalEnum::class)]
+    #[OAT\Property(enum: AnimalEnum::class)]
     protected AnimalEnum $animal;
 }

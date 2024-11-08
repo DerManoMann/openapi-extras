@@ -62,5 +62,12 @@
         "phpstan/phpstan": "^1.6",
         "phpunit/phpunit": "^9.0",
         "vimeo/psalm": "^4.23"
+    },
+    "conflict": {
+        "symfony/process": ">=6, <6.4.14"
+    },
+    "suggest": {
+        "radebatz/openapi-router": "Routing adapter for OpenApi annotations.",
+        "radebatz/openapi-verifier": "Allows your PHPUnit tests to validate your controller response against your OpenAPI spec."
     }
 }
