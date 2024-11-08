@@ -13,8 +13,8 @@ trait ComparesSpecs
      *
      * @param array|OA\OpenApi|\stdClass|string $actual     The generated output
      * @param array|OA\OpenApi|\stdClass|string $expected   The specification
-     * @param bool                           $normalized flag indicating whether the inputs are already normalized or
-     *                                                   not
+     * @param bool                              $normalized flag indicating whether the inputs are already normalized or
+     *                                                      not
      */
     protected function assertSpecEquals($actual, $expected, string $message = '', bool $normalized = false): void
     {
