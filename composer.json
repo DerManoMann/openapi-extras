@@ -63,9 +63,6 @@
         "phpunit/phpunit": "^9.0",
         "vimeo/psalm": "^4.23"
     },
-    "conflict": {
-        "symfony/console": "<6.4"
-    },
     "suggest": {
         "radebatz/openapi-router": "Routing adapter for OpenApi annotations.",
         "radebatz/openapi-verifier": "Allows your PHPUnit tests to validate your controller response against your OpenAPI spec."
