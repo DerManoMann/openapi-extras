@@ -2,7 +2,7 @@
 
 namespace Radebatz\OpenApi\Extras\Tests\Processors;
 
-use OpenApi\Annotations\OpenApi;
+use OpenApi\Annotations as OA;
 use OpenApi\Generator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -17,13 +17,13 @@ class CustomizersTest extends TestCase
         $generator->setConfig([
             'customizers' => [
                 'mappings' => [
-                    OpenApi::class => [fn (OpenApi $openApi) => $openApi->openapi = OpenApi::VERSION_3_1_0],
+                    OA\OpenApi::class => [fn (OA\OpenApi $openApi) => $openApi->openapi = OA\OpenApi::VERSION_3_1_0],
                 ],
             ],
         ]);
 
         $openapi = $generator->generate([__DIR__ . '/../Fixtures/OpenApi.php']);
 
-        $this->assertEquals(OpenApi::VERSION_3_1_0, $openapi->openapi);
+        $this->assertEquals(OA\OpenApi::VERSION_3_1_0, $openapi->openapi);
     }
 }

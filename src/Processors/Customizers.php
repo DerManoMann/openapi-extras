@@ -3,7 +3,7 @@
 namespace Radebatz\OpenApi\Extras\Processors;
 
 use OpenApi\Analysis;
-use OpenApi\Annotations\AbstractAnnotation;
+use OpenApi\Annotations as OA;
 
 /**
  * Allows for each annotation class to register one or more callbacks which
@@ -24,7 +24,7 @@ class Customizers
      * The registered callables will get called for each instance of `classname` to allow to
      * apply arbitrary customizations to the given instance.
      *
-     * @param array<class-string<AbstractAnnotation>,callable> $mappings
+     * @param array<class-string<OA\AbstractAnnotation>,callable> $mappings
      */
     public function setMappings(array $mappings): Customizers
     {

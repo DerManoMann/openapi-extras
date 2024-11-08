@@ -2,7 +2,7 @@
 
 namespace Radebatz\OpenApi\Extras\Tests\Concerns;
 
-use OpenApi\Annotations\OpenApi;
+use OpenApi\Annotations as OA;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -11,8 +11,8 @@ trait ComparesSpecs
     /**
      * Compare OpenApi specs assuming strings to contain YAML.
      *
-     * @param array|OpenApi|\stdClass|string $actual     The generated output
-     * @param array|OpenApi|\stdClass|string $expected   The specification
+     * @param array|OA\OpenApi|\stdClass|string $actual     The generated output
+     * @param array|OA\OpenApi|\stdClass|string $expected   The specification
      * @param bool                           $normalized flag indicating whether the inputs are already normalized or
      *                                                   not
      */
@@ -36,7 +36,7 @@ trait ComparesSpecs
         };
 
         $normalizeIn = function ($in) {
-            if ($in instanceof OpenApi) {
+            if ($in instanceof OA\OpenApi) {
                 $in = $in->toYaml();
             }
 
