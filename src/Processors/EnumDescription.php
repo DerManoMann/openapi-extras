@@ -11,7 +11,7 @@ use OpenApi\Generator;
  */
 class EnumDescription
 {
-    protected $enabled = false;
+    protected bool $enabled;
 
     public function __construct(bool $enabled = false)
     {
