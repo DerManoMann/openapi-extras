@@ -1,6 +1,6 @@
 # openapi-extras
 
-[![Build Status](https://github.com/DerManoMann/openapi-extras/workflows/build/badge.svg?branch=main)](https://github.com/DerManoMann/openapi-extras/actions)
+[![Build Status](https://github.com/DerManoMann/openapi-extras/workflows/build/badge.svg)](https://github.com/DerManoMann/openapi-extras/actions)
 [![Coverage Status](https://coveralls.io/repos/github/DerManoMann/openapi-extras/badge.svg)](https://coveralls.io/github/DerManoMann/openapi-extras)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
