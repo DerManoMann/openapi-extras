@@ -17,12 +17,10 @@ trait Fixtures
             $this->getAnnotationsFinder(),
         ];
 
-        if (\PHP_VERSION_ID >= 80100) {
-            yield 'attributes' => [
-                new Generator(),
-                $this->getAttributesFinder(),
-            ];
-        }
+        yield 'attributes' => [
+            new Generator(),
+            $this->getAttributesFinder(),
+        ];
     }
 
     protected function getAnnotationsFinder(): Finder
