@@ -32,7 +32,7 @@
         ],
         "analyse": [
             "export XDEBUG_MODE=off && phpstan analyse --memory-limit=2G",
-            "export XDEBUG_MODE=off && psalm"
+            "export XDEBUG_MODE=off && psalm --threads=1"
         ]
     },
     "config": {
