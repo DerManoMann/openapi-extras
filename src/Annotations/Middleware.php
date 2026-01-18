@@ -40,12 +40,4 @@ class Middleware extends OA\Attachable
             Controller::class,
         ];
     }
-
-    /**
-     * @paramarray<string|class-string>  $names
-     */
-    public function __construct(array $properties)
-    {
-        parent::__construct($properties);
-    }
 }
