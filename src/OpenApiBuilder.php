@@ -61,9 +61,19 @@ class OpenApiBuilder
     }
 
     /**
+     * Enable/disable recursive cleanup of unused paths and their nested annotations.
+     */
+    public function clearUnusedPaths(bool $enabled = true): OpenApiBuilder
+    {
+        $this->config['pathFilter'] = ['recurseCleanup' => $enabled];
+
+        return $this;
+    }
+
+    /**
      * Enable/disable cleaning up of unused components.
      */
-    public function clearUnused(bool $enabled = true): OpenApiBuilder
+    public function clearUnusedComponents(bool $enabled = true): OpenApiBuilder
     {
         $this->config['cleanUnusedComponents'] = ['enabled' => $enabled];
 
@@ -91,11 +101,63 @@ class OpenApiBuilder
     }
 
     /**
-     * List og tags to keep even if unused.
+     * List of tags to keep even if unused.
      */
     public function tagWhitelist(array $whitelist): OpenApiBuilder
     {
         $this->config['augmentTags'] = ['whitelist' => $whitelist];
+
+        return $this;
+    }
+
+    /**
+     * Enable/disable generating tag default descriptions.
+     */
+    public function tagDescriptions(bool $enabled = true): OpenApiBuilder
+    {
+        $this->config['augmentTags'] = ['withDescription' => $enabled];
+
+        return $this;
+    }
+
+    /**
+     * Enable/disable merging of multiple `OA\Components` elements.
+     *
+     * By default, only a single `OA\Components` element is allowed.
+     */
+    public function mergeComponents(bool $enabled = true): OpenApiBuilder
+    {
+        $this->config['mergeIntoOpenApi'] = ['mergeComponents' => $enabled];
+
+        return $this;
+    }
+
+    /**
+     * Specifies the name of the extension variable where backed enum names will be stored.
+     */
+    public function extensionEnumNames(?string $name): OpenApiBuilder
+    {
+        $this->config['expandEnums'] = ['enumNames' => $name];
+
+        return $this;
+    }
+
+    /**
+     * Enable/disable augmenting operation parameters.
+     */
+    public function augmentOperationParameters(bool $enabled = true): OpenApiBuilder
+    {
+        $this->config['augmentParameters'] = ['augmentOperationParameters' => $enabled];
+
+        return $this;
+    }
+
+    /**
+     * Enable/disable ignoring 3rd party attributes.
+     */
+    public function ignoreOtherAttributes(bool $enabled = true): OpenApiBuilder
+    {
+        $this->config['generator'] = ['ignoreOtherAttributes' => $enabled];
 
         return $this;
     }
