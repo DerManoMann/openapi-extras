@@ -99,7 +99,7 @@ use Radebatz\OpenApi\Extras\OpenApiBuilder;
 $generator = (new OpenApiBuilder())
                  ->addCustomizer(OA\Info::class, fn (OA\Info $info) => $info->description = 'Foo')
                  ->tagsToMatch(['admin'])
-                 ->clearUnused(enabled: true)
+                 ->clearUnusedComponents(enabled: true)
                  ->operationIdHashing(enabled: false)
                  ->pathsToMatch(['/api'])
                  ->enumDescription()
