@@ -18,7 +18,6 @@ class OpenApiBuilderTest extends TestCase
     {
         $pipeline = $generator->getProcessorPipeline();
         $rp = new \ReflectionProperty($pipeline, 'pipes');
-        $rp->setAccessible(true);
 
         return $rp->getValue($pipeline);
     }
@@ -47,10 +46,10 @@ class OpenApiBuilderTest extends TestCase
         $this->assertEquals(['bar'], $pathFilter->getTags());
     }
 
-    public function testClearUnused(): void
+    public function testClearUnusedComponents(): void
     {
         $builder = (new OpenApiBuilder())
-            ->clearUnused(true);
+            ->clearUnusedComponents(true);
         $pipes = $this->getPipes($builder->build());
         $cleanUnusedComponents = $this->getPipe($pipes, CleanUnusedComponents::class);
 
@@ -74,12 +73,12 @@ class OpenApiBuilderTest extends TestCase
         $builder = (new OpenApiBuilder())
             ->tagWhitelist(['ding']);
         $pipes = $this->getPipes($builder->build());
-        $augmentTags = $this->getPipe($pipes, AugmentTags::class);
 
+        /** @var ?AugmentTags $augmentTags */
+        $augmentTags = $this->getPipe($pipes, AugmentTags::class);
         $this->assertNotNull($augmentTags);
 
         $rp = new \ReflectionProperty($augmentTags, 'whitelist');
-        $rp->setAccessible(true);
 
         $this->assertEquals(['ding'], $rp->getValue($augmentTags));
     }
@@ -104,5 +103,57 @@ class OpenApiBuilderTest extends TestCase
         (new OpenApiBuilder())
             // @phpstan-ignore-next-line
             ->addCustomizer(\Exception::class, fn () => true);
+    }
+
+    public function provideDefaultConfigOptions(): iterable
+    {
+        $defaultConfig = (new Generator())->getDefaultConfig();
+
+        if (count($defaultConfig) > 2) {
+            foreach ($defaultConfig as $mainKey => $config) {
+                foreach ($config as $key => $defaultValue) {
+                    yield "$mainKey::$key" => [$mainKey, $key];
+                }
+            }
+        }
+    }
+
+    /**
+     * @dataProvider provideDefaultConfigOptions
+     */
+    public function testConfigSupported(string $mainKey, string $key): void
+    {
+        // maps default config options to OpenApiBuilder methods
+        $defaultConfigMap = [
+            'generator' => [
+                'ignoreOtherAttributes' => 'ignoreOtherAttributes',
+            ],
+            'mergeIntoOpenApi' => [
+                'mergeComponents' => 'mergeComponents',
+            ],
+            'expandEnums' => [
+                'enumNames' => 'extensionEnumNames',
+            ],
+            'augmentParameters' => [
+                'augmentOperationParameters' => 'augmentOperationParameters',
+            ],
+            'pathFilter' => [
+                'tags' => 'tagsToMatch',
+                'paths' => 'pathsToMatch',
+                'recurseCleanup' => 'clearUnusedPaths',
+            ],
+            'cleanUnusedComponents' => [
+                'enabled' => 'clearUnusedComponents',
+            ],
+            'augmentTags' => [
+                'whitelist' => 'tagWhitelist',
+                'withDescription' => 'tagDescriptions',
+            ],
+            'operationId' => [
+                'hash' => 'operationIdHashing',
+            ],
+        ];
+
+        $this->assertNotNull($defaultConfigMap[$mainKey][$key] ?? null, "Missing config method for $mainKey::$key");
     }
 }
