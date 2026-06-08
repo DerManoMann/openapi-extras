@@ -24,12 +24,14 @@ class Controller extends \Radebatz\OpenApi\Extras\Annotations\Controller
         ?array $headers = null,
         ?array $responses = null,
         ?array $middlewares = null,
+        bool $inherit = true,
         // annotation
         ?array $x = null,
         ?array $attachables = null
     ) {
         parent::__construct([
             'prefix' => $prefix ?? Generator::UNDEFINED,
+            'inherit' => $inherit,
             'x' => $x ?? Generator::UNDEFINED,
             'value' => $this->combine($headers, $responses, $middlewares, $attachables),
         ]);

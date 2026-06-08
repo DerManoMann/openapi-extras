@@ -31,6 +31,11 @@ class Controller extends OA\Attachable
     public ?array $headers = null;
 
     /**
+     * Whether to inherit controller settings from parent classes.
+     */
+    public bool $inherit = true;
+
+    /**
      * @inheritdoc
      */
     public static $_nested = [

@@ -8,9 +8,6 @@ use OpenApi\Context;
 use OpenApi\Generator;
 use Radebatz\OpenApi\Extras\Annotations as OAX;
 
-/**
- * Update operation path if controller prefix given.
- */
 class MergeControllerDefaults
 {
     public function __invoke(Analysis $analysis)
@@ -20,16 +17,12 @@ class MergeControllerDefaults
         /** @var OA\Operation[] $operations */
         $operations = $analysis->getAnnotationsOfType(OA\Operation::class);
 
-        foreach ($controllers as $controller) {
-            if ($this->needsProcessing($controller)) {
-                foreach ($operations as $operation) {
-                    if ($this->isContextMatch($operation->_context, $controller->_context)) {
-                        $this->processPrefix($operation, $controller);
-                        $this->processResponses($operation, $controller);
-                        $this->processHeaders($operation, $controller);
-                        $this->processMiddlewares($operation, $controller);
-                    }
-                }
+        $controllerMap = $this->buildControllerMap($controllers);
+
+        foreach ($operations as $operation) {
+            $chain = $this->resolveControllerChain($operation->_context, $controllerMap, $analysis);
+            if ($chain) {
+                $this->applyChain($operation, $chain);
             }
         }
 
@@ -40,61 +33,176 @@ class MergeControllerDefaults
         }
     }
 
-    protected function processPrefix(OA\Operation $operation, OAX\Controller $controller): void
+    /**
+     * @param OAX\Controller[] $controllers
+     * @return array<string, OAX\Controller>
+     */
+    protected function buildControllerMap(array $controllers): array
     {
-        if ($controller->prefix && !Generator::isDefault($controller->prefix)) {
-            $path = $controller->prefix . '/' . $operation->path;
+        $map = [];
+        foreach ($controllers as $controller) {
+            $fqcn = $controller->_context->fullyQualifiedName($controller->_context->class);
+            if ($fqcn) {
+                $map[$fqcn] = $controller;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param array<string, OAX\Controller> $controllerMap
+     * @return OAX\Controller[]
+     */
+    protected function resolveControllerChain(?Context $operationContext, array $controllerMap, Analysis $analysis): array
+    {
+        if (!$operationContext || !$operationContext->class) {
+            return [];
+        }
+
+        $fqcn = $operationContext->fullyQualifiedName($operationContext->class);
+        if (!$fqcn) {
+            return [];
+        }
+
+        $chain = [];
+
+        // Direct class controller
+        $directController = $controllerMap[$fqcn] ?? null;
+        if ($directController) {
+            $chain[] = $directController;
+
+            if (!$directController->inherit) {
+                return $chain;
+            }
+        }
+
+        // Walk up the inheritance chain
+        $superClasses = $analysis->getSuperClasses($fqcn);
+        foreach ($superClasses as $parentFqcn => $parentDefinition) {
+            $parentController = $controllerMap[$parentFqcn] ?? null;
+            if ($parentController) {
+                $chain[] = $parentController;
+
+                if (!$parentController->inherit) {
+                    break;
+                }
+            }
+        }
+
+        // Reverse so most-distant ancestor is first, direct class is last
+        return array_reverse($chain);
+    }
+
+    /**
+     * @param OAX\Controller[] $chain
+     */
+    protected function applyChain(OA\Operation $operation, array $chain): void
+    {
+        $mergedPrefix = '';
+        $mergedResponses = [];
+        $mergedHeaders = [];
+        $mergedMiddlewareNames = [];
+
+        foreach ($chain as $controller) {
+            if ($controller->prefix && !Generator::isDefault($controller->prefix)) {
+                $mergedPrefix .= '/' . trim($controller->prefix, '/');
+            }
+
+            if ($controller->responses) {
+                foreach ($controller->responses as $response) {
+                    $mergedResponses[$response->response] = $response;
+                }
+            }
+
+            if ($controller->headers) {
+                foreach ($controller->headers as $header) {
+                    $mergedHeaders[$header->header] = $header;
+                }
+            }
+
+            if (!Generator::isDefault($controller->attachables)) {
+                foreach ($controller->attachables as $attachable) {
+                    if ($attachable instanceof OAX\Middleware && $attachable->names) {
+                        foreach ($attachable->names as $name) {
+                            $mergedMiddlewareNames[$name] = $name;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Also collect operation-level middlewares (they take highest precedence)
+        if (!Generator::isDefault($operation->attachables)) {
+            foreach ($operation->attachables as $attachable) {
+                if ($attachable instanceof OAX\Middleware && $attachable->names) {
+                    foreach ($attachable->names as $name) {
+                        $mergedMiddlewareNames[$name] = $name;
+                    }
+                }
+            }
+        }
+
+        $this->applyPrefix($operation, $mergedPrefix);
+        $this->applyResponses($operation, $mergedResponses);
+        $this->applyHeaders($operation, $mergedHeaders);
+        $this->applyMiddlewares($operation, $mergedMiddlewareNames);
+    }
+
+    protected function applyPrefix(OA\Operation $operation, string $mergedPrefix): void
+    {
+        if ($mergedPrefix !== '') {
+            $path = $mergedPrefix . '/' . ltrim($operation->path, '/');
             $operation->path = str_replace('//', '/', $path);
         }
     }
 
-    protected function processResponses(OA\Operation $operation, OAX\Controller $controller): void
+    /**
+     * @param array<string|int, OA\Response> $mergedResponses
+     */
+    protected function applyResponses(OA\Operation $operation, array $mergedResponses): void
     {
-        if ($controller->responses) {
-            $operation->merge($controller->responses, true);
+        if ($mergedResponses) {
+            $operation->merge(array_values($mergedResponses), true);
         }
     }
 
-    protected function processHeaders(OA\Operation $operation, OAX\Controller $controller): void
+    /**
+     * @param array<string, OA\Header> $mergedHeaders
+     */
+    protected function applyHeaders(OA\Operation $operation, array $mergedHeaders): void
     {
-        if ($controller->headers && !Generator::isDefault($operation->responses)) {
+        if ($mergedHeaders && !Generator::isDefault($operation->responses)) {
             foreach ($operation->responses as $response) {
-                foreach ($controller->headers as $header) {
+                foreach ($mergedHeaders as $header) {
                     if (Generator::isDefault($response->headers) || !in_array($header, $response->headers, true)) {
-                        // avoid duplicates (Attributes: shared headers are already merged into shared responses)
-                        $response->merge($controller->headers, true);
+                        $response->merge([$header], true);
                     }
                 }
             }
         }
     }
 
-    protected function processMiddlewares(OA\Operation $operation, OAX\Controller $controller): void
+    /**
+     * @param array<string, string> $mergedMiddlewareNames
+     */
+    protected function applyMiddlewares(OA\Operation $operation, array $mergedMiddlewareNames): void
     {
-        if (!Generator::isDefault($controller->attachables)) {
-            $middlewares = [];
-            foreach ($controller->attachables as $attachable) {
-                if ($attachable instanceof OAX\Middleware) {
-                    $middlewares[] = $attachable;
-                }
-            }
-            $operation->merge($middlewares);
+        if (!$mergedMiddlewareNames) {
+            return;
         }
-    }
 
-    protected function needsProcessing(OAX\Controller $controller): bool
-    {
-        return ($controller->prefix && !Generator::isDefault($controller->prefix))
-            || $controller->headers
-            || $controller->responses
-            || !Generator::isDefault($controller->attachables);
-    }
+        // Remove existing operation-level middlewares (they've been merged into the resolved set)
+        if (!Generator::isDefault($operation->attachables)) {
+            $remaining = array_values(array_filter(
+                $operation->attachables,
+                fn ($a) => !($a instanceof OAX\Middleware)
+            ));
+            $operation->attachables = $remaining ?: Generator::UNDEFINED;
+        }
 
-    protected function isContextMatch(?Context $context1, ?Context $context2): bool
-    {
-        return $context1 && $context2
-            && $context1->namespace === $context2->namespace
-            && $context1->class == $context2->class;
+        $middleware = new OAX\Middleware(['names' => array_values($mergedMiddlewareNames)]);
+        $operation->merge([$middleware]);
     }
 
     protected function clearMerged(Analysis $analysis, $annotations): void
