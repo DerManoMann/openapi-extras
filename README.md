@@ -135,6 +135,57 @@ class PrefixedController
 }
 ```
 
+### `DataSchema`
+
+The `DataSchema` annotation/attribute wraps properties inside a `data` object envelope, reducing boilerplate for APIs that use a standard wrapper pattern.
+
+Properties with `nullable: false` are automatically added to the `data` object's `required` list.
+You can also explicitly pass a `required` list in the constructor.
+
+```php
+<?php declare(strict_types=1);
+
+use OpenApi\Attributes as OAT;
+use Radebatz\OpenApi\Extras\Attributes as OAX;
+
+#[OAX\DataSchema(schema: 'UserResource')]
+class UserResource
+{
+    #[OAT\Property(property: 'id', type: 'integer', nullable: false)]
+    public int $id;
+
+    #[OAT\Property(property: 'name', type: 'string', nullable: false)]
+    public string $name;
+
+    #[OAT\Property(property: 'email', type: 'string')]
+    public string $email;
+}
+```
+
+This generates a schema equivalent to:
+
+```yaml
+UserResource:
+  required:
+    - data
+  properties:
+    data:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          nullable: false
+        name:
+          type: string
+          nullable: false
+        email:
+          type: string
+      type: object
+  type: object
+```
+
 ### `Middleware`
 
 The `Middleware` annotation is currently not used but will be used by a future version
