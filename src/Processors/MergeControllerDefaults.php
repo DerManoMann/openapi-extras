@@ -106,7 +106,7 @@ class MergeControllerDefaults
         $annotations = is_array($annotations) ? $annotations : [$annotations];
 
         foreach ($annotations as $annotation) {
-            $analysis->annotations->detach($annotation);
+            $analysis->annotations->offsetUnset($annotation);
         }
     }
 }
