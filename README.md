@@ -188,26 +188,25 @@ UserResource:
 
 ### `Middleware`
 
-The `Middleware` annotation is currently not used but will be used by a future version
-of the [openapi-router](https://github.com/DerManoMann/openapi-router) project.
+`Middleware` annotations allow to attach a list of middleware names either individually or across all operations (via the `Controller` annotation).
+Controller-level middlewares are merged onto all operations in the class; operation-level middlewares are additive.
 
-`Middleware` annotations allow to share a list of middleware names either individually or across all operations (via the `Controller` annotation).
+This is used by the [openapi-router](https://github.com/DerManoMann/openapi-router) project to configure routing middleware from OpenAPI specs.
 
 ```php
 <?php declare(strict_types=1);
 
-namespace Radebatz\OpenApi\Extras\Tests\Fixtures\Controllers\Attributes;
-
 use OpenApi\Attributes as OAT;
 use Radebatz\OpenApi\Extras\Attributes as OAX;
 
-#[OAX\Controller()]
-#[OAX\Middleware([MyFooMiddleware::class])]
+#[OAX\Controller(
+    middlewares: [new OAX\Middleware([FooMiddleware::class])]
+)]
 class MiddlewareController
 {
     #[OAT\Get(path: '/mw', operationId: 'mw')]
     #[OAT\Response(response: 200, description: 'All good')]
-    #[OAX\Middleware(['BarMiddleware'])]
+    #[OAX\Middleware([BarMiddleware::class])]
     public function mw()
     {
         return 'mw';
