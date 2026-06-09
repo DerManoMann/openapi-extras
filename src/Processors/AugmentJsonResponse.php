@@ -11,7 +11,6 @@ class AugmentJsonResponse
 {
     public function __invoke(Analysis $analysis): void
     {
-        /** @var JsonResponse[] $responses */
         $responses = $analysis->getAnnotationsOfType(JsonResponse::class);
 
         foreach ($responses as $response) {

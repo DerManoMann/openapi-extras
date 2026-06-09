@@ -12,9 +12,7 @@ class MergeControllerDefaults
 {
     public function __invoke(Analysis $analysis)
     {
-        /** @var OAX\Controller[] $controllers */
         $controllers = $analysis->getAnnotationsOfType(OAX\Controller::class);
-        /** @var OA\Operation[] $operations */
         $operations = $analysis->getAnnotationsOfType(OA\Operation::class);
 
         $controllerMap = $this->buildControllerMap($controllers);

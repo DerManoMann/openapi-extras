@@ -39,7 +39,6 @@ class EnumDescription
             return;
         }
 
-        /** @var OA\Property[] $properties */
         $properties = $analysis->getAnnotationsOfType(OA\Property::class);
 
         foreach ($properties as $property) {
