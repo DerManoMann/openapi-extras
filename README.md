@@ -110,6 +110,7 @@ $generator = (new OpenApiBuilder())
 
 The controller annotation may be used to:
 * add an optional url prefix to all operations in the class
+* add one or more `Tag`s to all operations in the class
 * share one or more `Response`s across all operations
 * share one or more `Header`'s across all operations
 * share one or more `Middleware`'s across all operations
@@ -140,6 +141,7 @@ class PrefixedController
 Controller annotations are inherited from parent classes. This allows defining shared configuration on a base controller:
 
 * **Prefixes** concatenate: parent `/api/v2` + child `/users` = `/api/v2/users`
+* **Tags** merge (deduplicated)
 * **Responses** merge by response code (child overrides parent for same code)
 * **Headers** merge by header name (child overrides parent for same name)
 * **Middlewares** merge by exact name (deduplicated)
@@ -152,14 +154,14 @@ Set `inherit: false` on a child controller to opt out of inheritance.
 use OpenApi\Attributes as OAT;
 use Radebatz\OpenApi\Extras\Attributes as OAX;
 
-#[OAX\Controller(prefix: '/api/v2')]
+#[OAX\Controller(prefix: '/api/v2', tags: ['api'])]
 #[OAT\Response(response: 403, description: 'Not allowed')]
 #[OAX\Middleware([AuthMiddleware::class])]
 abstract class BaseController
 {
 }
 
-#[OAX\Controller(prefix: '/users')]
+#[OAX\Controller(prefix: '/users', tags: ['users'])]
 #[OAT\Response(response: 404, description: 'Not found')]
 class UserController extends BaseController
 {
@@ -168,6 +170,7 @@ class UserController extends BaseController
     public function list(): mixed
     {
         // effective path: /api/v2/users/list
+        // effective tags: ['api', 'users']
         // effective responses: 200, 403 (from parent), 404 (from child)
         return 'list';
     }
