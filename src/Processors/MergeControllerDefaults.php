@@ -10,11 +10,9 @@ use Radebatz\OpenApi\Extras\Annotations as OAX;
 
 class MergeControllerDefaults
 {
-    public function __invoke(Analysis $analysis)
+    public function __invoke(Analysis $analysis): void
     {
-        /** @var OAX\Controller[] $controllers */
         $controllers = $analysis->getAnnotationsOfType(OAX\Controller::class);
-        /** @var OA\Operation[] $operations */
         $operations = $analysis->getAnnotationsOfType(OA\Operation::class);
 
         $controllerMap = $this->buildControllerMap($controllers);

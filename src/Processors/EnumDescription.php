@@ -33,13 +33,12 @@ class EnumDescription
         return $this;
     }
 
-    public function __invoke(Analysis $analysis)
+    public function __invoke(Analysis $analysis): void
     {
         if (!class_exists('\\ReflectionEnum')) {
             return;
         }
 
-        /** @var OA\Property[] $properties */
         $properties = $analysis->getAnnotationsOfType(OA\Property::class);
 
         foreach ($properties as $property) {

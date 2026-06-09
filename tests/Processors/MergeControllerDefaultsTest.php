@@ -138,7 +138,6 @@ class MergeControllerDefaultsTest extends TestCase
                 return $analysis;
             });
 
-        /** @var OA\Operation[] $operations */
         $operations = $analysis->getAnnotationsOfType(OA\Operation::class);
         foreach ($operations as $operation) {
             if ($operation->operationId === $operationId) {
