@@ -31,6 +31,13 @@ class Controller extends OA\Attachable
     public ?array $headers = null;
 
     /**
+     * Tags to apply to all operations in this controller.
+     *
+     * @var string[]|null
+     */
+    public ?array $tags = null;
+
+    /**
      * Whether to inherit controller settings from parent classes.
      */
     public bool $inherit = true;

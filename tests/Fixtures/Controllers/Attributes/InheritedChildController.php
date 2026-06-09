@@ -6,7 +6,7 @@ use OpenApi\Attributes as OAT;
 use Radebatz\OpenApi\Extras\Attributes as OAX;
 use Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\BarMiddleware;
 
-#[OAX\Controller(prefix: '/users')]
+#[OAX\Controller(prefix: '/users', tags: ['users'])]
 #[OAT\Response(response: 404, description: 'Not found')]
 #[OAX\Middleware([BarMiddleware::class, 'auth:superadmin'])]
 class InheritedChildController extends AbstractBaseController

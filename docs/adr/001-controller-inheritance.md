@@ -18,6 +18,10 @@ Support class hierarchy inheritance for `Controller` annotations with the follow
 
 Concatenate from most-distant ancestor to child: parent `/api/v2` + child `/user` = `/api/v2/user`. A child with no prefix inherits the parent prefix unchanged.
 
+### Tags
+
+Merge and deduplicate. Tags from the full controller chain are applied to all operations in the class.
+
 ### Responses
 
 Merge by response code. Child response with same code overrides parent's.

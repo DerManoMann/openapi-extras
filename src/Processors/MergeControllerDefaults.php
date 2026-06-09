@@ -100,6 +100,7 @@ class MergeControllerDefaults
     protected function applyChain(OA\Operation $operation, array $chain): void
     {
         $mergedPrefix = '';
+        $mergedTags = [];
         $mergedResponses = [];
         $mergedHeaders = [];
         $mergedMiddlewareNames = [];
@@ -107,6 +108,12 @@ class MergeControllerDefaults
         foreach ($chain as $controller) {
             if ($controller->prefix && !Generator::isDefault($controller->prefix)) {
                 $mergedPrefix .= '/' . trim($controller->prefix, '/');
+            }
+
+            if ($controller->tags) {
+                foreach ($controller->tags as $tag) {
+                    $mergedTags[$tag] = $tag;
+                }
             }
 
             if ($controller->responses) {
@@ -144,6 +151,7 @@ class MergeControllerDefaults
         }
 
         $this->applyPrefix($operation, $mergedPrefix);
+        $this->applyTags($operation, $mergedTags);
         $this->applyResponses($operation, $mergedResponses);
         $this->applyHeaders($operation, $mergedHeaders);
         $this->applyMiddlewares($operation, $mergedMiddlewareNames);
@@ -155,6 +163,19 @@ class MergeControllerDefaults
             $path = $mergedPrefix . '/' . ltrim($operation->path, '/');
             $operation->path = str_replace('//', '/', $path);
         }
+    }
+
+    /**
+     * @param array<string, string> $mergedTags
+     */
+    protected function applyTags(OA\Operation $operation, array $mergedTags): void
+    {
+        if ($mergedTags === []) {
+            return;
+        }
+
+        $operationTags = Generator::isDefault($operation->tags) ? [] : $operation->tags;
+        $operation->tags = array_values(array_unique([...$mergedTags, ...$operationTags]));
     }
 
     /**
