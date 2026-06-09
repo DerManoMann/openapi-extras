@@ -78,4 +78,37 @@ paths:
               description: 'Shared header'
               schema:
                 type: string
+  /api/v2/users/list:
+    get:
+      operationId: inheritedList
+      responses:
+        '200':
+          description: 'All good'
+          headers:
+            X-Request-Id:
+              description: 'Request ID'
+              schema:
+                type: string
+        '403':
+          description: 'Not allowed'
+          headers:
+            X-Request-Id:
+              description: 'Request ID'
+              schema:
+                type: string
+        '404':
+          description: 'Not found'
+          headers:
+            X-Request-Id:
+              description: 'Request ID'
+              schema:
+                type: string
+  /standalone/isolated:
+    get:
+      operationId: isolated
+      responses:
+        '200':
+          description: 'All good'
+        '500':
+          description: 'Server error'
 components: {  }

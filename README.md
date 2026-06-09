@@ -135,6 +135,45 @@ class PrefixedController
 }
 ```
 
+#### Inheritance
+
+Controller annotations are inherited from parent classes. This allows defining shared configuration on a base controller:
+
+* **Prefixes** concatenate: parent `/api/v2` + child `/users` = `/api/v2/users`
+* **Responses** merge by response code (child overrides parent for same code)
+* **Headers** merge by header name (child overrides parent for same name)
+* **Middlewares** merge by exact name (deduplicated)
+
+Set `inherit: false` on a child controller to opt out of inheritance.
+
+```php
+<?php declare(strict_types=1);
+
+use OpenApi\Attributes as OAT;
+use Radebatz\OpenApi\Extras\Attributes as OAX;
+
+#[OAX\Controller(prefix: '/api/v2')]
+#[OAT\Response(response: 403, description: 'Not allowed')]
+#[OAX\Middleware([AuthMiddleware::class])]
+abstract class BaseController
+{
+}
+
+#[OAX\Controller(prefix: '/users')]
+#[OAT\Response(response: 404, description: 'Not found')]
+class UserController extends BaseController
+{
+    #[OAT\Get(path: '/list', operationId: 'listUsers')]
+    #[OAT\Response(response: 200, description: 'All good')]
+    public function list(): mixed
+    {
+        // effective path: /api/v2/users/list
+        // effective responses: 200, 403 (from parent), 404 (from child)
+        return 'list';
+    }
+}
+```
+
 ### `DataSchema`
 
 The `DataSchema` annotation/attribute wraps properties inside a `data` object envelope, reducing boilerplate for APIs that use a standard wrapper pattern.
