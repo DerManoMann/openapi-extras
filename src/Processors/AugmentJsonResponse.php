@@ -19,9 +19,8 @@ class AugmentJsonResponse
                 continue;
             }
 
-            $source = Generator::isDefault($response->ref) ? $response->type : $response->ref;
-            if ($source && !Generator::isDefault($source)) {
-                $response->description = $this->resolveDescription($source, $analysis);
+            if (!Generator::isDefault($response->source)) {
+                $response->description = $this->resolveDescription($response->source, $analysis);
             }
         }
     }

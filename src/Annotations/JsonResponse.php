@@ -13,22 +13,24 @@ use OpenApi\Generator;
 class JsonResponse extends OA\Response
 {
     /** @var string|class-string */
-    public $ref = Generator::UNDEFINED;
+    public $source = Generator::UNDEFINED;
 
-    /** @var string|class-string|null */
-    public $type = Generator::UNDEFINED;
+    public static $_blacklist = ['_context', '_unmerged', '_analysis', 'attachables', 'source'];
 
     public function __construct(array $properties)
     {
         $ref = $properties['ref'] ?? Generator::UNDEFINED;
         $type = $properties['type'] ?? Generator::UNDEFINED;
+        unset($properties['ref'], $properties['type']);
 
         $jsonContentProps = [];
         if (!Generator::isDefault($ref)) {
             $jsonContentProps['ref'] = $ref;
+            $properties['source'] = $ref;
         }
         if (!Generator::isDefault($type)) {
             $jsonContentProps['type'] = $type;
+            $properties['source'] = $properties['source'] ?? $type;
         }
 
         if ($jsonContentProps !== []) {
