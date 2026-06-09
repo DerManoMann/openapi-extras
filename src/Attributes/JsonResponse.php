@@ -4,10 +4,13 @@ namespace Radebatz\OpenApi\Extras\Attributes;
 
 use OpenApi\Attributes as OAT;
 use OpenApi\Generator;
+use Radebatz\OpenApi\Extras\JsonResponseTrait;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-class JsonResponse extends \Radebatz\OpenApi\Extras\Annotations\JsonResponse
+class JsonResponse extends OAT\Response
 {
+    use JsonResponseTrait;
+
     /**
      * @param string|class-string      $ref
      * @param string|class-string|null $type
@@ -24,13 +27,19 @@ class JsonResponse extends \Radebatz\OpenApi\Extras\Annotations\JsonResponse
         ?array $x = null,
         ?array $attachables = null,
     ) {
-        parent::__construct([
-            'ref' => $ref,
-            'type' => $type ?? Generator::UNDEFINED,
-            'response' => $response,
-            'description' => $description ?? Generator::UNDEFINED,
-            'x' => $x ?? Generator::UNDEFINED,
-            'value' => $this->combine($headers, $attachables),
-        ]);
+        $resolved = $this->resolveSource($ref, $type);
+
+        $jsonContent = ($resolved['ref'] !== null || $resolved['type'] !== null)
+            ? new OAT\JsonContent(ref: $resolved['ref'], type: $resolved['type'])
+            : null;
+
+        parent::__construct(
+            response: $response !== Generator::UNDEFINED ? $response : null,
+            description: $description ?? Generator::UNDEFINED,
+            headers: $headers,
+            content: $jsonContent,
+            x: $x,
+            attachables: $attachables,
+        );
     }
 }

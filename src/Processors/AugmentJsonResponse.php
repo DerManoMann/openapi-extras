@@ -5,13 +5,14 @@ namespace Radebatz\OpenApi\Extras\Processors;
 use OpenApi\Analysis;
 use OpenApi\Annotations as OA;
 use OpenApi\Generator;
-use Radebatz\OpenApi\Extras\Annotations\JsonResponse;
+use Radebatz\OpenApi\Extras\Annotations as OAX;
+use Radebatz\OpenApi\Extras\Attributes as OAXT;
 
 class AugmentJsonResponse
 {
     public function __invoke(Analysis $analysis): void
     {
-        $responses = $analysis->getAnnotationsOfType(JsonResponse::class);
+        $responses = $analysis->getAnnotationsOfType([OAX\JsonResponse::class, OAXT\JsonResponse::class]);
 
         foreach ($responses as $response) {
             if (!Generator::isDefault($response->description)) {
