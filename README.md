@@ -256,6 +256,51 @@ class MiddlewareController
 }
 ```
 
+### `JsonResponse`
+
+A shorthand for JSON responses that reference a schema. Reduces nesting by wrapping the ref/type in a `JsonContent` automatically.
+
+If no `description` is provided, it is derived from the referenced schema (fallback order: title > description > schema name > class short name).
+
+```php
+<?php declare(strict_types=1);
+
+use OpenApi\Attributes as OAT;
+use Radebatz\OpenApi\Extras\Attributes as OAX;
+
+#[OAT\Schema(schema: 'TokenPairResource', title: 'Token pair')]
+class TokenPairResource
+{
+    #[OAT\Property(property: 'access_token', type: 'string')]
+    public string $accessToken;
+
+    #[OAT\Property(property: 'refresh_token', type: 'string')]
+    public string $refreshToken;
+}
+
+class AuthController
+{
+    #[OAT\Post(path: '/auth/login', operationId: 'login')]
+    #[OAX\JsonResponse(response: 200, ref: TokenPairResource::class)]
+    #[OAX\JsonResponse(response: 401, description: 'Invalid credentials')]
+    public function login(): mixed
+    {
+        // response 200 description auto-derived as "Token pair" from schema title
+        return '...';
+    }
+}
+```
+
+This is equivalent to the more verbose:
+
+```php
+#[OAT\Response(
+    response: 200,
+    description: 'Token pair',
+    content: new OAT\JsonContent(ref: TokenPairResource::class)
+)]
+```
+
 
 ## License
 
