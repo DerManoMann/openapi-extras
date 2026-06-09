@@ -34,7 +34,7 @@ class MergeControllerDefaults
     }
 
     /**
-     * @param OAX\Controller[] $controllers
+     * @param  OAX\Controller[]              $controllers
      * @return array<string, OAX\Controller>
      */
     protected function buildControllerMap(array $controllers): array
@@ -51,7 +51,7 @@ class MergeControllerDefaults
     }
 
     /**
-     * @param array<string, OAX\Controller> $controllerMap
+     * @param  array<string, OAX\Controller> $controllerMap
      * @return OAX\Controller[]
      */
     protected function resolveControllerChain(?Context $operationContext, array $controllerMap, Analysis $analysis): array
