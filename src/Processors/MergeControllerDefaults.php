@@ -174,15 +174,8 @@ class MergeControllerDefaults
             return;
         }
 
-        if (Generator::isDefault($operation->tags)) {
-            $operation->tags = [];
-        }
-
-        foreach ($mergedTags as $tag) {
-            if (!in_array($tag, $operation->tags, true)) {
-                $operation->tags[] = $tag;
-            }
-        }
+        $operationTags = Generator::isDefault($operation->tags) ? [] : $operation->tags;
+        $operation->tags = array_values(array_unique([...$mergedTags, ...$operationTags]));
     }
 
     /**

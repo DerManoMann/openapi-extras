@@ -16,7 +16,7 @@ class Controller extends \Radebatz\OpenApi\Extras\Annotations\Controller
      * @param string[]|null            $tags
      * @param OAT\Header[]|null        $headers
      * @param OAT\Response[]|null      $responses
-     * @param Middleware[]|null         $middlewares
+     * @param Middleware[]|null        $middlewares
      * @param array<string,mixed>|null $x
      * @param OAT\Attachable[]|null    $attachables
      */
