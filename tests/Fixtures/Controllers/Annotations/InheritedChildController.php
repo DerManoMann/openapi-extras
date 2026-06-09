@@ -9,6 +9,7 @@ use Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware as Middleware;
 /**
  * @OAX\Controller(
  *     prefix="/users",
+ *     tags={"users"},
  *     @OA\Response(response="404", description="Not found"),
  *     @OAX\Middleware(names={Middleware\BarMiddleware::class, "auth:superadmin"})
  * )

@@ -102,6 +102,18 @@ class MergeControllerDefaultsTest extends TestCase
     /**
      * @dataProvider fixturesProvider
      */
+    public function testInheritedTags(Generator $generator, Finder $finder): void
+    {
+        $operation = $this->getOperation($generator, $finder, 'inheritedList');
+
+        $this->assertIsArray($operation->tags);
+        $this->assertContains('api', $operation->tags);
+        $this->assertContains('users', $operation->tags);
+    }
+
+    /**
+     * @dataProvider fixturesProvider
+     */
     public function testNoInherit(Generator $generator, Finder $finder): void
     {
         $operation = $this->getOperation($generator, $finder, 'isolated');

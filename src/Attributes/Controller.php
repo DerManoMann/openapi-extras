@@ -13,14 +13,16 @@ use OpenApi\Generator;
 class Controller extends \Radebatz\OpenApi\Extras\Annotations\Controller
 {
     /**
-     * @param OAT\Header[]             $headers
+     * @param string[]|null            $tags
+     * @param OAT\Header[]|null        $headers
      * @param OAT\Response[]|null      $responses
-     * @param Middleware[]|null        $middlewares
+     * @param Middleware[]|null         $middlewares
      * @param array<string,mixed>|null $x
      * @param OAT\Attachable[]|null    $attachables
      */
     public function __construct(
         ?string $prefix = null,
+        ?array $tags = null,
         ?array $headers = null,
         ?array $responses = null,
         ?array $middlewares = null,
@@ -31,6 +33,7 @@ class Controller extends \Radebatz\OpenApi\Extras\Annotations\Controller
     ) {
         parent::__construct([
             'prefix' => $prefix ?? Generator::UNDEFINED,
+            'tags' => $tags,
             'inherit' => $inherit,
             'x' => $x ?? Generator::UNDEFINED,
             'value' => $this->combine($headers, $responses, $middlewares, $attachables),

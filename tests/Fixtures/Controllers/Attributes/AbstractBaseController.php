@@ -6,7 +6,7 @@ use OpenApi\Attributes as OAT;
 use Radebatz\OpenApi\Extras\Attributes as OAX;
 use Radebatz\OpenApi\Extras\Tests\Fixtures\Middleware\FooMiddleware;
 
-#[OAX\Controller(prefix: '/api/v2')]
+#[OAX\Controller(prefix: '/api/v2', tags: ['api'])]
 #[OAT\Response(response: 403, description: 'Not allowed')]
 #[OAT\Header(
     header: 'X-Request-Id',

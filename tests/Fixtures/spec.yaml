@@ -80,6 +80,9 @@ paths:
                 type: string
   /api/v2/users/list:
     get:
+      tags:
+        - api
+        - users
       operationId: inheritedList
       responses:
         '200':
@@ -112,3 +115,10 @@ paths:
         '500':
           description: 'Server error'
 components: {  }
+tags:
+  -
+    name: api
+    description: api
+  -
+    name: users
+    description: users
