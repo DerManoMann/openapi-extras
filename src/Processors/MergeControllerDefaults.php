@@ -21,7 +21,7 @@ class MergeControllerDefaults
 
         foreach ($operations as $operation) {
             $chain = $this->resolveControllerChain($operation->_context, $controllerMap, $analysis);
-            if ($chain) {
+            if ($chain !== []) {
                 $this->applyChain($operation, $chain);
             }
         }
@@ -79,7 +79,7 @@ class MergeControllerDefaults
 
         // Walk up the inheritance chain
         $superClasses = $analysis->getSuperClasses($fqcn);
-        foreach ($superClasses as $parentFqcn => $parentDefinition) {
+        foreach (array_keys($superClasses) as $parentFqcn) {
             $parentController = $controllerMap[$parentFqcn] ?? null;
             if ($parentController) {
                 $chain[] = $parentController;
@@ -162,7 +162,7 @@ class MergeControllerDefaults
      */
     protected function applyResponses(OA\Operation $operation, array $mergedResponses): void
     {
-        if ($mergedResponses) {
+        if ($mergedResponses !== []) {
             $operation->merge(array_values($mergedResponses), true);
         }
     }
@@ -188,7 +188,7 @@ class MergeControllerDefaults
      */
     protected function applyMiddlewares(OA\Operation $operation, array $mergedMiddlewareNames): void
     {
-        if (!$mergedMiddlewareNames) {
+        if ($mergedMiddlewareNames === []) {
             return;
         }
 
