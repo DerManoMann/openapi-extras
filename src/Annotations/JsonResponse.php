@@ -21,7 +21,7 @@ class JsonResponse extends OA\Response
         $type = $properties['type'] ?? Generator::UNDEFINED;
         unset($properties['ref'], $properties['type']);
 
-        $resolved = $this->resolveSource($ref, !Generator::isDefault($type) ? $type : null);
+        $resolved = $this->resolveSource($ref, Generator::isDefault($type) ? null : $type);
 
         if ($resolved['ref'] !== null || $resolved['type'] !== null) {
             $jsonContent = new OA\JsonContent(array_filter($resolved));
