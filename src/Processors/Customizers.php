@@ -38,7 +38,7 @@ class Customizers
         return $this->mappings;
     }
 
-    public function __invoke(Analysis $analysis)
+    public function __invoke(Analysis $analysis): void
     {
         foreach ($this->mappings as $classname => $callables) {
             $annotations = $analysis->getAnnotationsOfType($classname);

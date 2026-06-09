@@ -22,7 +22,7 @@ class OpenApiBuilderTest extends TestCase
         return $rp->getValue($pipeline);
     }
 
-    protected function getPipe(array $pipes, string $pipeClass)
+    protected function getPipe(array $pipes, string $pipeClass): ?object
     {
         foreach ($pipes as $pipe) {
             if ($pipe instanceof $pipeClass) {
