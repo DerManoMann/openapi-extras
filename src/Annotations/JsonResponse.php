@@ -4,6 +4,7 @@ namespace Radebatz\OpenApi\Extras\Annotations;
 
 use OpenApi\Annotations as OA;
 use OpenApi\Generator;
+use Radebatz\OpenApi\Extras\JsonResponseTrait;
 
 /**
  * Shorthand for a JSON response with a schema ref or type.
@@ -12,10 +13,7 @@ use OpenApi\Generator;
  */
 class JsonResponse extends OA\Response
 {
-    /** @var string|class-string */
-    public $source = Generator::UNDEFINED;
-
-    public static $_blacklist = ['_context', '_unmerged', '_analysis', 'attachables', 'source'];
+    use JsonResponseTrait;
 
     public function __construct(array $properties)
     {
@@ -23,18 +21,10 @@ class JsonResponse extends OA\Response
         $type = $properties['type'] ?? Generator::UNDEFINED;
         unset($properties['ref'], $properties['type']);
 
-        $jsonContentProps = [];
-        if (!Generator::isDefault($ref)) {
-            $jsonContentProps['ref'] = $ref;
-            $properties['source'] = $ref;
-        }
-        if (!Generator::isDefault($type)) {
-            $jsonContentProps['type'] = $type;
-            $properties['source'] = $properties['source'] ?? $type;
-        }
+        $resolved = $this->resolveSource($ref, Generator::isDefault($type) ? null : $type);
 
-        if ($jsonContentProps !== []) {
-            $jsonContent = new OA\JsonContent($jsonContentProps);
+        if ($resolved['ref'] !== null || $resolved['type'] !== null) {
+            $jsonContent = new OA\JsonContent(array_filter($resolved));
             $properties['value'] = array_merge($properties['value'] ?? [], [$jsonContent]);
         }
 
