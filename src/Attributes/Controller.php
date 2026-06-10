@@ -8,9 +8,10 @@ namespace Radebatz\OpenApi\Extras\Attributes;
 
 use OpenApi\Attributes as OAT;
 use OpenApi\Generator;
+use Radebatz\OpenApi\Extras\Annotations as OAX;
 
 #[\Attribute(\Attribute::TARGET_CLASS)]
-class Controller extends \Radebatz\OpenApi\Extras\Annotations\Controller
+class Controller extends OAX\Controller
 {
     /**
      * @param string[]|null            $tags

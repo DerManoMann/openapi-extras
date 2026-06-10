@@ -24,6 +24,15 @@ This processor generates human-readable descriptions from PHP enum cases. It mus
 
 - `ExpandEnums` replaces enum class references with their scalar values. After it runs, the link back to the `ReflectionEnum` (needed to enumerate case names) is lost.
 
+### `MiddlewareCustomizers` — inserted before `AugmentParameters`
+
+This processor applies scoped customizers from middleware classes implementing `ProvidesCustomizersInterface`. It runs **after** `BuildPaths` because:
+
+- Operations must be fully assembled with their merged middleware attachables (done by `MergeControllerDefaults` before `BuildPaths`).
+- It needs to see the final operation structure to apply mutations like `security`.
+
+It runs **before** `AugmentParameters` so that any parameters or references added by middleware customizers are still processed by the standard augmentation pipeline.
+
 ### `Customizers` — appended at the end
 
 This processor invokes user-defined callbacks on annotation instances. It runs **last** because:
