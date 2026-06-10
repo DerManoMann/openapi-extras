@@ -3,9 +3,10 @@
 namespace Radebatz\OpenApi\Extras\Attributes;
 
 use OpenApi\Generator;
+use Radebatz\OpenApi\Extras\Annotations as OAX;
 
 #[\Attribute(\Attribute::TARGET_ALL | \Attribute::IS_REPEATABLE)]
-class Middleware extends \Radebatz\OpenApi\Extras\Annotations\Middleware
+class Middleware extends OAX\Middleware
 {
     /**
      * @param array<string|class-string>|null $names
@@ -19,7 +20,6 @@ class Middleware extends \Radebatz\OpenApi\Extras\Annotations\Middleware
         parent::__construct([
             'names' => $names ?? Generator::UNDEFINED,
             'x' => $x ?? Generator::UNDEFINED,
-            'attachables' => $attachables ?? Generator::UNDEFINED,
             'value' => $this->combine($attachables),
         ]);
     }

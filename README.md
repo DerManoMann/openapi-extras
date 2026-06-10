@@ -256,6 +256,59 @@ class MiddlewareController
 }
 ```
 
+#### `ProvidesCustomizersInterface`
+
+Middleware subclasses can implement `ProvidesCustomizersInterface` to automatically apply OpenAPI modifications to operations that carry them. This eliminates duplication — for example, a `jwt-auth` middleware can auto-inject the `security` scheme without every operation declaring it manually.
+
+```php
+<?php declare(strict_types=1);
+
+use OpenApi\Annotations as OA;
+use Radebatz\OpenApi\Extras\Attributes\Middleware;
+use Radebatz\OpenApi\Extras\ProvidesCustomizersInterface;
+
+#[\Attribute(\Attribute::TARGET_ALL | \Attribute::IS_REPEATABLE)]
+class SecureMiddleware extends Middleware implements ProvidesCustomizersInterface
+{
+    public function __construct()
+    {
+        parent::__construct(names: ['jwt-auth']);
+    }
+
+    public static function customizers(): array
+    {
+        return [
+            OA\Operation::class => [
+                fn (OA\Operation $op) => $op->security = [['bearerAuth' => []]],
+            ],
+        ];
+    }
+}
+```
+
+Then use it on a controller — all operations inherit both the middleware name and the security effect:
+
+```php
+<?php declare(strict_types=1);
+
+use OpenApi\Attributes as OAT;
+use Radebatz\OpenApi\Extras\Attributes as OAX;
+
+#[OAX\Controller(middlewares: [new SecureMiddleware()])]
+class UserController
+{
+    #[OAT\Get(path: '/users', operationId: 'listUsers')]
+    #[OAT\Response(response: 200, description: 'All good')]
+    public function list(): mixed
+    {
+        // security: [['bearerAuth' => []]] is applied automatically
+        return 'list';
+    }
+}
+```
+
+The `customizers()` method returns the same mapping format as the `Customizers` processor (`annotation class => callable[]`), but these are scoped — they only apply to operations carrying the middleware, not globally.
+
 ### `JsonResponse`
 
 A shorthand for JSON responses that reference a schema. Reduces nesting by wrapping the ref/type in a `JsonContent` automatically.

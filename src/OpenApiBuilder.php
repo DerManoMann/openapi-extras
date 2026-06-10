@@ -4,6 +4,7 @@ namespace Radebatz\OpenApi\Extras;
 
 use OpenApi\Annotations as OA;
 use OpenApi\Generator;
+use OpenApi\Processors\AugmentParameters;
 use OpenApi\Processors\BuildPaths;
 use OpenApi\Processors\ExpandEnums;
 use Psr\Log\LoggerInterface;
@@ -11,6 +12,7 @@ use Radebatz\OpenApi\Extras\Processors\AugmentJsonResponse;
 use Radebatz\OpenApi\Extras\Processors\Customizers;
 use Radebatz\OpenApi\Extras\Processors\EnumDescription;
 use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
+use Radebatz\OpenApi\Extras\Processors\MiddlewareCustomizers;
 
 /**
  * A simple `builder` wrapper around the OpenApi `Generator` class.
@@ -193,7 +195,8 @@ class OpenApiBuilder
 
         $generator->getProcessorPipeline()
             ->insert(new MergeControllerDefaults(), BuildPaths::class)
-            ->insert(new AugmentJsonResponse(), BuildPaths::class);
+            ->insert(new AugmentJsonResponse(), BuildPaths::class)
+            ->insert(new MiddlewareCustomizers(), AugmentParameters::class);
 
         if ($this->customizers) {
             $generator->getProcessorPipeline()

@@ -106,6 +106,18 @@ paths:
               description: 'Request ID'
               schema:
                 type: string
+  /secure:
+    get:
+      operationId: secureEndpoint
+      responses:
+        '200':
+          description: 'All good'
+  /also-secure:
+    get:
+      operationId: alsoSecureEndpoint
+      responses:
+        '200':
+          description: 'All good'
   /standalone/isolated:
     get:
       operationId: isolated

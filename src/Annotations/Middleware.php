@@ -21,6 +21,13 @@ class Middleware extends OA\Attachable
     /**
      * @inheritdoc
      */
+    public static $_nested = [
+        OA\Attachable::class => ['attachables'],
+    ];
+
+    /**
+     * @inheritdoc
+     */
     public static $_required = ['names'];
 
     /**
