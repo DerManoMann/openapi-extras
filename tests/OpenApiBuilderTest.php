@@ -86,14 +86,15 @@ class OpenApiBuilderTest extends TestCase
     public function testAddCustomizer(): void
     {
         $builder = (new OpenApiBuilder())
-            ->addCustomizer(OA\Info::class, fn () => true);
+            ->addCustomizer(OA\Info::class, function (OA\Info $info): void {});
         $pipes = $this->getPipes($builder->build());
         $customizers = $this->getPipe($pipes, Customizers::class);
 
         $this->assertNotNull($customizers);
 
         $mappings = $customizers->getMappings();
-        $this->assertCount(1, $mappings);
+        $this->assertArrayHasKey(OA\Info::class, $mappings);
+        $this->assertArrayHasKey(OA\Operation::class, $mappings);
     }
 
     public function testAddCustomizerInvalidClass(): void

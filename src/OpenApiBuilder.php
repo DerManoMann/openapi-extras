@@ -4,7 +4,6 @@ namespace Radebatz\OpenApi\Extras;
 
 use OpenApi\Annotations as OA;
 use OpenApi\Generator;
-use OpenApi\Processors\AugmentParameters;
 use OpenApi\Processors\BuildPaths;
 use OpenApi\Processors\ExpandEnums;
 use Psr\Log\LoggerInterface;
@@ -12,7 +11,6 @@ use Radebatz\OpenApi\Extras\Processors\AugmentJsonResponse;
 use Radebatz\OpenApi\Extras\Processors\Customizers;
 use Radebatz\OpenApi\Extras\Processors\EnumDescription;
 use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
-use Radebatz\OpenApi\Extras\Processors\MiddlewareCustomizers;
 
 /**
  * A simple `builder` wrapper around the OpenApi `Generator` class.
@@ -166,7 +164,10 @@ class OpenApiBuilder
     }
 
     /**
-     * @param class-string<OA\AbstractAnnotation> $class
+     * @template T of OA\AbstractAnnotation
+     *
+     * @param class-string<T>   $class
+     * @param callable(T): void $customizer
      */
     public function addCustomizer(string $class, callable $customizer): OpenApiBuilder
     {
@@ -195,14 +196,29 @@ class OpenApiBuilder
 
         $generator->getProcessorPipeline()
             ->insert(new MergeControllerDefaults(), BuildPaths::class)
-            ->insert(new AugmentJsonResponse(), BuildPaths::class)
-            ->insert(new MiddlewareCustomizers(), AugmentParameters::class);
+            ->insert(new AugmentJsonResponse(), BuildPaths::class);
 
-        if ($this->customizers) {
-            $generator->getProcessorPipeline()
-                ->add(new Customizers());
-            $config['customizers']['mappings'] = $this->customizers;
-        }
+        $customizers = $this->customizers;
+        $customizers[OA\Operation::class][] = static function (OA\Operation $operation): void {
+            if (Generator::isDefault($operation->attachables)) {
+                return;
+            }
+
+            foreach ($operation->attachables as $attachable) {
+                if (!($attachable instanceof ProvidesCustomizersInterface)) {
+                    continue;
+                }
+                foreach ($attachable::customizers() as $annotationClass => $callable) {
+                    if ($operation instanceof $annotationClass) {
+                        $callable($operation);
+                    }
+                }
+            }
+        };
+
+        $generator->getProcessorPipeline()
+            ->add(new Customizers());
+        $config['customizers']['mappings'] = $customizers;
 
         return $generator
             ->setConfig($config);

@@ -28,11 +28,9 @@ class MergeControllerDefaultsTest extends TestCase
     {
         $operation = $this->getOperation($generator, $finder, 'mw');
 
-        $this->assertIsArray($operation->attachables);
-        $this->assertCount(1, $operation->attachables);
-        $this->assertInstanceOf(OAX\Middleware::class, $operation->attachables[0]);
-        $this->assertContains(BarMiddleware::class, $operation->attachables[0]->names);
-        $this->assertContains(FooMiddleware::class, $operation->attachables[0]->names);
+        $allNames = $this->collectMiddlewareNames($operation);
+        $this->assertContains(BarMiddleware::class, $allNames);
+        $this->assertContains(FooMiddleware::class, $allNames);
     }
 
     /**
@@ -84,19 +82,11 @@ class MergeControllerDefaultsTest extends TestCase
     {
         $operation = $this->getOperation($generator, $finder, 'inheritedList');
 
-        $this->assertIsArray($operation->attachables);
-        $middleware = null;
-        foreach ($operation->attachables as $attachable) {
-            if ($attachable instanceof OAX\Middleware) {
-                $middleware = $attachable;
-                break;
-            }
-        }
-        $this->assertNotNull($middleware);
-        $this->assertContains(FooMiddleware::class, $middleware->names);
-        $this->assertContains(BarMiddleware::class, $middleware->names);
-        $this->assertContains('auth:superadmin', $middleware->names);
-        $this->assertContains('auth:admin', $middleware->names);
+        $allNames = $this->collectMiddlewareNames($operation);
+        $this->assertContains(FooMiddleware::class, $allNames);
+        $this->assertContains(BarMiddleware::class, $allNames);
+        $this->assertContains('auth:superadmin', $allNames);
+        $this->assertContains('auth:admin', $allNames);
     }
 
     /**
@@ -123,6 +113,76 @@ class MergeControllerDefaultsTest extends TestCase
         $this->assertContains(200, $responseCodes);
         $this->assertContains(500, $responseCodes);
         $this->assertNotContains(403, $responseCodes);
+    }
+
+    /**
+     * @dataProvider fixturesProvider
+     */
+    public function testMiddlewareOrderPreserved(Generator $generator, Finder $finder): void
+    {
+        $operation = $this->getOperation($generator, $finder, 'inheritedList');
+
+        $allNames = $this->collectMiddlewareNames($operation);
+
+        $fooPos = array_search(FooMiddleware::class, $allNames);
+        $barPos = array_search(BarMiddleware::class, $allNames);
+        $this->assertLessThan($barPos, $fooPos, 'Base middleware should appear before child middleware');
+    }
+
+    public function testMiddlewareOperationOverridesController(): void
+    {
+        $processor = new MergeControllerDefaults();
+
+        $controllerMiddleware = new OAX\Middleware(['names' => ['auth', 'rate-limit']]);
+        $operationMiddleware = new OAX\Middleware(['names' => ['auth', 'cache']]);
+
+        $context = new Context(['namespace' => 'App\\Http', 'class' => 'UserController']);
+        $controller = new OAX\Controller([
+            'prefix' => '/api',
+            '_context' => $context,
+        ]);
+        $controller->attachables = [$controllerMiddleware];
+
+        $operation = new OA\Get([
+            'path' => '/list',
+            '_context' => new Context(['namespace' => 'App\\Http', 'class' => 'UserController', 'method' => 'list']),
+        ]);
+        $operation->attachables = [$operationMiddleware];
+
+        $analysis = new Analysis([], new Context([]));
+        $analysis->addAnnotation($controller, $context);
+        $analysis->addAnnotation($operation, $operation->_context);
+        $analysis->addClassDefinition(['class' => 'UserController', 'context' => $context]);
+
+        $processor($analysis);
+
+        $allNames = $this->collectMiddlewareNames($operation);
+
+        // 'auth' on both controller and operation; operation wins
+        $this->assertContains('auth', $allNames);
+        $this->assertContains('rate-limit', $allNames);
+        $this->assertContains('cache', $allNames);
+
+        // Verify the 'auth' entry points to the operation-level instance
+        $middlewares = array_filter(
+            $operation->attachables,
+            fn ($a) => $a instanceof OAX\Middleware && in_array('auth', $a->names)
+        );
+        $authMiddleware = reset($middlewares);
+        $this->assertSame($operationMiddleware, $authMiddleware);
+    }
+
+    protected function collectMiddlewareNames(OA\Operation $operation): array
+    {
+        $this->assertIsArray($operation->attachables);
+        $names = [];
+        foreach ($operation->attachables as $attachable) {
+            if ($attachable instanceof OAX\Middleware) {
+                $names = array_merge($names, $attachable->names ?? []);
+            }
+        }
+
+        return $names;
     }
 
     protected function getOperation(Generator $generator, Finder $finder, string $operationId): OA\Operation

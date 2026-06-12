@@ -20,9 +20,7 @@ class SecureMiddleware extends Middleware implements ProvidesCustomizersInterfac
     public static function customizers(): array
     {
         return [
-            OA\Operation::class => [
-                fn (OA\Operation $operation) => $operation->security = [['bearerAuth' => []]],
-            ],
+            OA\Operation::class => fn (OA\Operation $operation) => $operation->security = [['bearerAuth' => []]],
         ];
     }
 }
