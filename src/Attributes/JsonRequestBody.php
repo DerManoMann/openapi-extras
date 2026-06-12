@@ -22,7 +22,7 @@ class JsonRequestBody extends OAT\RequestBody
         string|null $type = null,
         ?string $request = null,
         ?string $description = null,
-        ?bool $required = null,
+        ?bool $required = true,
         ?array $x = null,
         ?array $attachables = null,
     ) {
