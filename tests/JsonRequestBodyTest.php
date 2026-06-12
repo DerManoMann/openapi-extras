@@ -18,8 +18,7 @@ class JsonRequestBodyTest extends TestCase
     {
         $requestBody = new JsonRequestBody(ref: TokenPairResource::class);
 
-        $this->assertNotEmpty($requestBody->_unmerged);
-        $this->assertInstanceOf(OA\JsonContent::class, $requestBody->_unmerged[0]);
+        $this->assertEquals(TokenPairResource::class, $requestBody->source);
     }
 
     public function testAttributeExplicitDescription(): void
@@ -34,6 +33,7 @@ class JsonRequestBodyTest extends TestCase
         $requestBody = new JsonRequestBody();
 
         $this->assertEquals(Generator::UNDEFINED, $requestBody->description);
+        $this->assertEquals(Generator::UNDEFINED, $requestBody->source);
     }
 
     public function testAttributeRequired(): void
@@ -49,8 +49,21 @@ class JsonRequestBodyTest extends TestCase
             'ref' => TokenPairResource::class,
         ]);
 
-        $this->assertNotEmpty($requestBody->_unmerged);
-        $this->assertInstanceOf(OA\JsonContent::class, $requestBody->_unmerged[0]);
+        $this->assertEquals(TokenPairResource::class, $requestBody->source);
+    }
+
+    public function testProcessorCreatesJsonContent(): void
+    {
+        $analysis = $this->createAnalysisWithSchema(TokenPairResource::class, 'Token pair', Generator::UNDEFINED);
+
+        $requestBody = new JsonRequestBody(ref: TokenPairResource::class);
+        $analysis->addAnnotation($requestBody, new Context([]));
+
+        (new AugmentJsonRequestBody())($analysis);
+
+        $jsonContents = $analysis->getAnnotationsOfType(OA\JsonContent::class);
+        $this->assertCount(1, $jsonContents);
+        $this->assertEquals(TokenPairResource::class, $jsonContents[0]->ref);
     }
 
     public function testProcessorResolvesDescriptionFromTitle(): void
@@ -101,6 +114,36 @@ class JsonRequestBodyTest extends TestCase
         $this->assertEquals('My desc', $requestBody->description);
     }
 
+    public function testProcessorResolvesSourceFromParameterTypeHint(): void
+    {
+        $analysis = $this->createAnalysisWithSchema(TokenPairResource::class, 'Token pair', Generator::UNDEFINED);
+
+        $requestBody = new JsonRequestBody();
+        $rp = new \ReflectionParameter([Fixtures\Controllers\Attributes\ParameterController::class, 'create'], 'resource');
+        $requestBody->_context = new Context(['reflector' => $rp]);
+        $analysis->addAnnotation($requestBody, $requestBody->_context);
+
+        (new AugmentJsonRequestBody())($analysis);
+
+        $this->assertEquals(TokenPairResource::class, $requestBody->source);
+        $jsonContents = $analysis->getAnnotationsOfType(OA\JsonContent::class);
+        $this->assertCount(1, $jsonContents);
+        $this->assertEquals(TokenPairResource::class, $jsonContents[0]->ref);
+    }
+
+    public function testProcessorSetsComponentRefForRequestBodySource(): void
+    {
+        $analysis = $this->createAnalysisWithRequestBody('App\\Requests\\SharedCreateBody', 'SharedCreateBody');
+
+        $requestBody = new JsonRequestBody(ref: 'App\\Requests\\SharedCreateBody');
+        $analysis->addAnnotation($requestBody, new Context([]));
+
+        (new AugmentJsonRequestBody())($analysis);
+
+        $this->assertEquals('#/components/requestBodies/SharedCreateBody', $requestBody->ref);
+        $this->assertEmpty($requestBody->_unmerged);
+    }
+
     protected function createAnalysisWithSchema(string $class, string $title, string $description): Analysis
     {
         $shortName = substr($class, strrpos($class, '\\') + 1);
@@ -118,6 +161,25 @@ class JsonRequestBodyTest extends TestCase
         $analysis = new Analysis([], new Context([]));
         $analysis->addClassDefinition(['class' => $shortName, 'context' => $context]);
         $analysis->addAnnotation($schema, $context);
+
+        return $analysis;
+    }
+
+    protected function createAnalysisWithRequestBody(string $class, string $name): Analysis
+    {
+        $shortName = substr($class, strrpos($class, '\\') + 1);
+        $namespace = substr($class, 0, strrpos($class, '\\'));
+
+        $context = new Context(['namespace' => $namespace, 'class' => $shortName]);
+        $rb = new OA\RequestBody([
+            'request' => $name,
+            '_context' => $context,
+        ]);
+        $context->annotations = [$rb];
+
+        $analysis = new Analysis([], new Context([]));
+        $analysis->addClassDefinition(['class' => $shortName, 'context' => $context]);
+        $analysis->addAnnotation($rb, $context);
 
         return $analysis;
     }

@@ -6,7 +6,7 @@ use OpenApi\Attributes as OAT;
 use OpenApi\Generator;
 use Radebatz\OpenApi\Extras\JsonContentTrait;
 
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::TARGET_PARAMETER | \Attribute::IS_REPEATABLE)]
 class JsonRequestBody extends OAT\RequestBody
 {
     use JsonContentTrait;
@@ -26,17 +26,12 @@ class JsonRequestBody extends OAT\RequestBody
         ?array $x = null,
         ?array $attachables = null,
     ) {
-        $resolved = $this->resolveSource($ref, $type);
-
-        $jsonContent = ($resolved['ref'] !== null || $resolved['type'] !== null)
-            ? new OAT\JsonContent(ref: $resolved['ref'], type: $resolved['type'])
-            : null;
+        $this->resolveSource($ref, $type);
 
         parent::__construct(
             request: $request,
             description: $description ?? Generator::UNDEFINED,
             required: $required,
-            content: $jsonContent,
             x: $x,
             attachables: $attachables,
         );

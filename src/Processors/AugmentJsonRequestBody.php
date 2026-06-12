@@ -4,45 +4,67 @@ namespace Radebatz\OpenApi\Extras\Processors;
 
 use OpenApi\Analysis;
 use OpenApi\Annotations as OA;
+use OpenApi\Context;
 use OpenApi\Generator;
 use Radebatz\OpenApi\Extras\Annotations as OAX;
 use Radebatz\OpenApi\Extras\Attributes as OAXT;
+use Radebatz\OpenApi\Extras\Processors\Concerns\ResolvesDescription;
 
 class AugmentJsonRequestBody
 {
+    use ResolvesDescription;
+
     public function __invoke(Analysis $analysis): void
     {
         $requestBodies = $analysis->getAnnotationsOfType([OAX\JsonRequestBody::class, OAXT\JsonRequestBody::class]);
 
         foreach ($requestBodies as $requestBody) {
-            if (!Generator::isDefault($requestBody->description)) {
+            $source = $this->resolveSource($requestBody);
+            if ($source === null) {
                 continue;
             }
 
-            if (!Generator::isDefault($requestBody->source)) {
-                $requestBody->description = $this->resolveDescription($requestBody->source, $analysis);
+            $requestBody->source = $source;
+
+            if (Generator::isDefault($requestBody->content) && Generator::isDefault($requestBody->ref)) {
+                $this->dispatch($requestBody, $source, $analysis);
+            }
+
+            if (Generator::isDefault($requestBody->description)) {
+                $requestBody->description = $this->resolveDescription($source, $analysis);
             }
         }
     }
 
-    protected function resolveDescription(string $source, Analysis $analysis): string
+    protected function resolveSource(OAX\JsonRequestBody|OAXT\JsonRequestBody $requestBody): ?string
     {
-        $schema = $analysis->getAnnotationForSource($source, OA\Schema::class);
+        if (!Generator::isDefault($requestBody->source)) {
+            return $requestBody->source;
+        }
 
-        if ($schema instanceof OA\Schema) {
-            if (!Generator::isDefault($schema->title)) {
-                return $schema->title;
-            }
-            if (!Generator::isDefault($schema->description)) {
-                return $schema->description;
-            }
-            if (!Generator::isDefault($schema->schema)) {
-                return $schema->schema;
+        $reflector = $requestBody->_context->reflector ?? null;
+        if ($reflector instanceof \ReflectionParameter) {
+            $type = $reflector->getType();
+            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+                return $type->getName();
             }
         }
 
-        $pos = strrpos($source, '\\');
+        return null;
+    }
 
-        return $pos !== false ? substr($source, $pos + 1) : $source;
+    protected function dispatch(OA\RequestBody $requestBody, string $source, Analysis $analysis): void
+    {
+        $sourceRequestBody = $analysis->getAnnotationForSource($source, OA\RequestBody::class);
+        if ($sourceRequestBody instanceof OA\AbstractAnnotation) {
+            $requestBody->ref = OA\Components::ref($sourceRequestBody);
+
+            return;
+        }
+
+        $context = new Context(['nested' => $requestBody], $requestBody->_context);
+        $jsonContent = new OA\JsonContent(['ref' => $source, '_context' => $context]);
+
+        $analysis->addAnnotation($jsonContent, $context);
     }
 }

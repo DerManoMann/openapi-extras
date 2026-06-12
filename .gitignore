@@ -4,3 +4,4 @@ composer.lock
 coverage/
 vendor/
 .idea/
+/.claude/settings.local.json

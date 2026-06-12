@@ -19,8 +19,7 @@ class JsonResponseTest extends TestCase
         $response = new JsonResponse(response: 200, ref: TokenPairResource::class);
 
         $this->assertEquals(200, $response->response);
-        $this->assertNotEmpty($response->_unmerged);
-        $this->assertInstanceOf(OA\JsonContent::class, $response->_unmerged[0]);
+        $this->assertEquals(TokenPairResource::class, $response->source);
     }
 
     public function testAttributeExplicitDescription(): void
@@ -35,6 +34,7 @@ class JsonResponseTest extends TestCase
         $response = new JsonResponse(response: 204);
 
         $this->assertEquals(Generator::UNDEFINED, $response->description);
+        $this->assertEquals(Generator::UNDEFINED, $response->source);
     }
 
     public function testAnnotationWithRef(): void
@@ -45,8 +45,21 @@ class JsonResponseTest extends TestCase
         ]);
 
         $this->assertEquals(200, $response->response);
-        $this->assertNotEmpty($response->_unmerged);
-        $this->assertInstanceOf(OA\JsonContent::class, $response->_unmerged[0]);
+        $this->assertEquals(TokenPairResource::class, $response->source);
+    }
+
+    public function testProcessorCreatesJsonContent(): void
+    {
+        $analysis = $this->createAnalysisWithSchema(TokenPairResource::class, 'Token pair', Generator::UNDEFINED);
+
+        $response = new JsonResponse(response: 200, ref: TokenPairResource::class);
+        $analysis->addAnnotation($response, new Context([]));
+
+        (new AugmentJsonResponse())($analysis);
+
+        $jsonContents = $analysis->getAnnotationsOfType(OA\JsonContent::class);
+        $this->assertCount(1, $jsonContents);
+        $this->assertEquals(TokenPairResource::class, $jsonContents[0]->ref);
     }
 
     public function testProcessorResolvesDescriptionFromTitle(): void
