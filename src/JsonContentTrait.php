@@ -4,7 +4,7 @@ namespace Radebatz\OpenApi\Extras;
 
 use OpenApi\Generator;
 
-trait JsonResponseTrait
+trait JsonContentTrait
 {
     /** @var string|class-string */
     public $source = Generator::UNDEFINED;

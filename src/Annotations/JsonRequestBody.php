@@ -7,11 +7,11 @@ use OpenApi\Generator;
 use Radebatz\OpenApi\Extras\JsonContentTrait;
 
 /**
- * Shorthand for a JSON response with a schema ref or type.
+ * Shorthand for a JSON request body with a schema ref or type.
  *
  * @Annotation
  */
-class JsonResponse extends OA\Response
+class JsonRequestBody extends OA\RequestBody
 {
     use JsonContentTrait;
 
