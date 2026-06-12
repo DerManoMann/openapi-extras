@@ -101,8 +101,7 @@ class MergeControllerDefaults
         $mergedTags = [];
         $mergedResponses = [];
         $mergedHeaders = [];
-        $mergedMiddlewareNames = [];
-        $mergedMiddlewareInstances = [];
+        $mergedMiddlewares = [];
 
         foreach ($chain as $controller) {
             if ($controller->prefix && !Generator::isDefault($controller->prefix)) {
@@ -127,35 +126,16 @@ class MergeControllerDefaults
                 }
             }
 
-            if (!Generator::isDefault($controller->attachables)) {
-                foreach ($controller->attachables as $attachable) {
-                    if ($attachable instanceof OAX\Middleware && $attachable->names) {
-                        $mergedMiddlewareInstances[get_class($attachable)] = $attachable;
-                        foreach ($attachable->names as $name) {
-                            $mergedMiddlewareNames[$name] = $name;
-                        }
-                    }
-                }
-            }
+            $mergedMiddlewares = $this->collectMiddlewares($controller->attachables, $mergedMiddlewares);
         }
 
-        // Also collect operation-level middlewares (they take highest precedence)
-        if (!Generator::isDefault($operation->attachables)) {
-            foreach ($operation->attachables as $attachable) {
-                if ($attachable instanceof OAX\Middleware && $attachable->names) {
-                    $mergedMiddlewareInstances[get_class($attachable)] = $attachable;
-                    foreach ($attachable->names as $name) {
-                        $mergedMiddlewareNames[$name] = $name;
-                    }
-                }
-            }
-        }
+        $mergedMiddlewares = $this->collectMiddlewares($operation->attachables, $mergedMiddlewares);
 
         $this->applyPrefix($operation, $mergedPrefix);
         $this->applyTags($operation, $mergedTags);
         $this->applyResponses($operation, $mergedResponses);
         $this->applyHeaders($operation, $mergedHeaders);
-        $this->applyMiddlewares($operation, $mergedMiddlewareNames, $mergedMiddlewareInstances);
+        $this->applyMiddlewares($operation, $mergedMiddlewares);
     }
 
     protected function applyPrefix(OA\Operation $operation, string $mergedPrefix): void
@@ -206,16 +186,37 @@ class MergeControllerDefaults
     }
 
     /**
-     * @param array<string, string>               $mergedMiddlewareNames
-     * @param array<class-string, OAX\Middleware> $mergedMiddlewareInstances
+     * @param array<string, OAX\Middleware> $mergedMiddlewares
+     *
+     * @return array<string, OAX\Middleware>
      */
-    protected function applyMiddlewares(OA\Operation $operation, array $mergedMiddlewareNames, array $mergedMiddlewareInstances = []): void
+    protected function collectMiddlewares(mixed $attachables, array $mergedMiddlewares = []): array
     {
-        if ($mergedMiddlewareNames === []) {
+        if (Generator::isDefault($attachables) || !is_array($attachables)) {
+            return $mergedMiddlewares;
+        }
+
+        // Last occurrence wins: child controllers override ancestors, operation overrides all.
+        foreach ($attachables as $attachable) {
+            if ($attachable instanceof OAX\Middleware && $attachable->names) {
+                foreach ($attachable->names as $name) {
+                    $mergedMiddlewares[$name] = $attachable;
+                }
+            }
+        }
+
+        return $mergedMiddlewares;
+    }
+
+    /**
+     * @param array<string, OAX\Middleware> $mergedMiddlewares
+     */
+    protected function applyMiddlewares(OA\Operation $operation, array $mergedMiddlewares): void
+    {
+        if ($mergedMiddlewares === []) {
             return;
         }
 
-        // Remove existing operation-level middlewares (they've been merged into the resolved set)
         if (!Generator::isDefault($operation->attachables)) {
             $remaining = array_values(array_filter(
                 $operation->attachables,
@@ -224,11 +225,7 @@ class MergeControllerDefaults
             $operation->attachables = $remaining ?: Generator::UNDEFINED;
         }
 
-        $middleware = new OAX\Middleware([
-            'names' => array_values($mergedMiddlewareNames),
-            'value' => array_values($mergedMiddlewareInstances),
-        ]);
-        $operation->merge([$middleware]);
+        $operation->merge(array_values($mergedMiddlewares));
     }
 
     protected function clearMerged(Analysis $analysis, $annotations): void

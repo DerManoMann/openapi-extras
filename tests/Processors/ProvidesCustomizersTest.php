@@ -6,16 +6,16 @@ use OpenApi\Analysis;
 use OpenApi\Annotations as OA;
 use OpenApi\Context;
 use OpenApi\Generator;
-use OpenApi\Processors\AugmentParameters;
 use OpenApi\Processors\BuildPaths;
 use PHPUnit\Framework\TestCase;
 use Radebatz\OpenApi\Extras\Annotations as OAX;
+use Radebatz\OpenApi\Extras\Processors\Customizers;
 use Radebatz\OpenApi\Extras\Processors\MergeControllerDefaults;
-use Radebatz\OpenApi\Extras\Processors\MiddlewareCustomizers;
+use Radebatz\OpenApi\Extras\ProvidesCustomizersInterface;
 use Radebatz\OpenApi\Extras\Tests\Concerns\Fixtures;
 use Symfony\Component\Finder\Finder;
 
-class MiddlewareCustomizersTest extends TestCase
+class ProvidesCustomizersTest extends TestCase
 {
     use Fixtures;
 
@@ -72,7 +72,31 @@ class MiddlewareCustomizersTest extends TestCase
     {
         $generator->getProcessorPipeline()
             ->insert(new MergeControllerDefaults(), BuildPaths::class)
-            ->insert(new MiddlewareCustomizers(), AugmentParameters::class);
+            ->add(new Customizers());
+
+        $generator->setConfig([
+            'customizers' => [
+                'mappings' => [
+                    OA\Operation::class => [
+                        static function (OA\Operation $operation): void {
+                            if (Generator::isDefault($operation->attachables)) {
+                                return;
+                            }
+                            foreach ($operation->attachables as $attachable) {
+                                if (!($attachable instanceof ProvidesCustomizersInterface)) {
+                                    continue;
+                                }
+                                foreach ($attachable::customizers() as $annotationClass => $callable) {
+                                    if ($operation instanceof $annotationClass) {
+                                        $callable($operation);
+                                    }
+                                }
+                            }
+                        },
+                    ],
+                ],
+            ],
+        ]);
 
         $analysis = $generator
             ->withContext(function (Generator $generator, Analysis $analysis, Context $context) use ($finder) {
