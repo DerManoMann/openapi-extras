@@ -7,23 +7,22 @@ use OpenApi\Generator;
 use Radebatz\OpenApi\Extras\JsonContentTrait;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-class JsonResponse extends OAT\Response
+class JsonRequestBody extends OAT\RequestBody
 {
     use JsonContentTrait;
 
     /**
      * @param string|class-string      $ref
      * @param string|class-string|null $type
-     * @param OAT\Header[]|null        $headers
      * @param array<string,mixed>|null $x
      * @param OAT\Attachable[]|null    $attachables
      */
     public function __construct(
-        int|string $response = Generator::UNDEFINED,
         string|object $ref = Generator::UNDEFINED,
         string|null $type = null,
+        ?string $request = null,
         ?string $description = null,
-        ?array $headers = null,
+        ?bool $required = null,
         ?array $x = null,
         ?array $attachables = null,
     ) {
@@ -34,9 +33,9 @@ class JsonResponse extends OAT\Response
             : null;
 
         parent::__construct(
-            response: $response !== Generator::UNDEFINED ? $response : null,
+            request: $request,
             description: $description ?? Generator::UNDEFINED,
-            headers: $headers,
+            required: $required,
             content: $jsonContent,
             x: $x,
             attachables: $attachables,

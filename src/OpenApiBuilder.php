@@ -7,6 +7,7 @@ use OpenApi\Generator;
 use OpenApi\Processors\BuildPaths;
 use OpenApi\Processors\ExpandEnums;
 use Psr\Log\LoggerInterface;
+use Radebatz\OpenApi\Extras\Processors\AugmentJsonRequestBody;
 use Radebatz\OpenApi\Extras\Processors\AugmentJsonResponse;
 use Radebatz\OpenApi\Extras\Processors\Customizers;
 use Radebatz\OpenApi\Extras\Processors\EnumDescription;
@@ -196,7 +197,8 @@ class OpenApiBuilder
 
         $generator->getProcessorPipeline()
             ->insert(new MergeControllerDefaults(), BuildPaths::class)
-            ->insert(new AugmentJsonResponse(), BuildPaths::class);
+            ->insert(new AugmentJsonResponse(), BuildPaths::class)
+            ->insert(new AugmentJsonRequestBody(), BuildPaths::class);
 
         $customizers = $this->customizers;
         $customizers[OA\Operation::class][] = static function (OA\Operation $operation): void {

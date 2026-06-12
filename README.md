@@ -354,6 +354,50 @@ This is equivalent to the more verbose:
 )]
 ```
 
+### `JsonRequestBody`
+
+A shorthand for JSON request bodies that reference a schema. Reduces nesting by wrapping the ref/type in a `JsonContent` automatically.
+
+If no `description` is provided, it is derived from the referenced schema (fallback order: title > description > schema name > class short name).
+
+```php
+<?php declare(strict_types=1);
+
+use OpenApi\Attributes as OAT;
+use Radebatz\OpenApi\Extras\Attributes as OAX;
+
+#[OAT\Schema(schema: 'LoginRequest', title: 'Login credentials')]
+class LoginRequest
+{
+    #[OAT\Property(property: 'email', type: 'string')]
+    public string $email;
+
+    #[OAT\Property(property: 'password', type: 'string')]
+    public string $password;
+}
+
+class AuthController
+{
+    #[OAT\Post(path: '/auth/login', operationId: 'login')]
+    #[OAX\JsonRequestBody(ref: LoginRequest::class, required: true)]
+    public function login(): mixed
+    {
+        // description auto-derived as "Login credentials" from schema title
+        return '...';
+    }
+}
+```
+
+This is equivalent to the more verbose:
+
+```php
+#[OAT\RequestBody(
+    description: 'Login credentials',
+    required: true,
+    content: new OAT\JsonContent(ref: LoginRequest::class)
+)]
+```
+
 
 ## License
 
