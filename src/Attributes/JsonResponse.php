@@ -27,17 +27,12 @@ class JsonResponse extends OAT\Response
         ?array $x = null,
         ?array $attachables = null,
     ) {
-        $resolved = $this->resolveSource($ref, $type);
-
-        $jsonContent = ($resolved['ref'] !== null || $resolved['type'] !== null)
-            ? new OAT\JsonContent(ref: $resolved['ref'], type: $resolved['type'])
-            : null;
+        $this->resolveSource($ref, $type);
 
         parent::__construct(
             response: $response !== Generator::UNDEFINED ? $response : null,
             description: $description ?? Generator::UNDEFINED,
             headers: $headers,
-            content: $jsonContent,
             x: $x,
             attachables: $attachables,
         );

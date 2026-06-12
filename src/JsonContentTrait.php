@@ -11,23 +11,12 @@ trait JsonContentTrait
 
     public static $_blacklist = ['_context', '_unmerged', '_analysis', 'attachables', 'source'];
 
-    /**
-     * @return array{ref: string|class-string|null, type: string|class-string|null}
-     */
-    protected function resolveSource(string|object $ref, ?string $type): array
+    protected function resolveSource(string|object $ref, ?string $type): void
     {
-        $resolvedRef = null;
-        $resolvedType = null;
-
         if (!Generator::isDefault($ref)) {
-            $resolvedRef = $ref;
             $this->source = $ref;
+        } elseif ($type !== null) {
+            $this->source = $type;
         }
-        if ($type !== null) {
-            $resolvedType = $type;
-            $this->source = $this->source !== Generator::UNDEFINED ? $this->source : $type;
-        }
-
-        return ['ref' => $resolvedRef, 'type' => $resolvedType];
     }
 }

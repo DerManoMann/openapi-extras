@@ -378,11 +378,19 @@ class LoginRequest
 
 class AuthController
 {
+    // Method-level with explicit ref
     #[OAT\Post(path: '/auth/login', operationId: 'login')]
     #[OAX\JsonRequestBody(ref: LoginRequest::class, required: true)]
     public function login(): mixed
     {
         // description auto-derived as "Login credentials" from schema title
+        return '...';
+    }
+
+    // Parameter-level — ref inferred from type-hint
+    #[OAT\Post(path: '/auth/register', operationId: 'register')]
+    public function register(#[OAX\JsonRequestBody] LoginRequest $request): mixed
+    {
         return '...';
     }
 }
@@ -396,6 +404,24 @@ This is equivalent to the more verbose:
     required: true,
     content: new OAT\JsonContent(ref: LoginRequest::class)
 )]
+```
+
+When `ref` points to a class with an `#[OAT\RequestBody]` annotation, a component `$ref` is generated instead of inline `JsonContent`:
+
+```php
+#[OAT\RequestBody(request: 'SharedCreateBody')]
+class SharedCreateBody { /* ... */ }
+
+class ItemController
+{
+    #[OAT\Post(path: '/items', operationId: 'createItem')]
+    #[OAX\JsonRequestBody(ref: SharedCreateBody::class)]
+    public function create(): mixed
+    {
+        // produces: $ref: '#/components/requestBodies/SharedCreateBody'
+        return '...';
+    }
+}
 ```
 
 
