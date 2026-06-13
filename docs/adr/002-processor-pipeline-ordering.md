@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The swagger-php `Generator` runs annotations through a pipeline of processors in a fixed order. This library adds three custom processors that must be inserted at specific positions relative to the default pipeline to function correctly.
+The swagger-php `Generator` runs annotations through a pipeline of processors in a fixed order. This library adds custom processors that must be inserted at specific positions relative to the default pipeline to function correctly.
 
 ## Decision
 
@@ -24,14 +24,21 @@ This processor generates human-readable descriptions from PHP enum cases. It mus
 
 - `ExpandEnums` replaces enum class references with their scalar values. After it runs, the link back to the `ReflectionEnum` (needed to enumerate case names) is lost.
 
-### `MiddlewareCustomizers` — inserted before `AugmentParameters`
+### `AugmentJsonResponse` / `AugmentJsonRequestBody` — inserted before `BuildPaths`
 
-This processor applies scoped customizers from middleware classes implementing `ProvidesCustomizersInterface`. It runs **after** `BuildPaths` because:
+These processors create `JsonContent` from `source` (the `ref` parameter) when no explicit content is provided, and resolve descriptions from the referenced schema. They must run **before** `BuildPaths` because:
 
-- Operations must be fully assembled with their merged middleware attachables (done by `MergeControllerDefaults` before `BuildPaths`).
-- It needs to see the final operation structure to apply mutations like `security`.
+- `BuildPaths` needs the response/request body structure to be in place.
+- The generated `JsonContent` must be available for `MergeJsonContent` (which runs later) to convert into `MediaType`.
 
-It runs **before** `AugmentParameters` so that any parameters or references added by middleware customizers are still processed by the standard augmentation pipeline.
+### `WrapJsonResponseContent` — inserted before `OperationId` (after `MergeJsonContent`)
+
+This processor wraps the resolved schema of `JsonResponse` instances inside an envelope property. It must run **after** `MergeJsonContent` because:
+
+- `MergeJsonContent` converts `JsonContent` annotations into `MediaType` with a resolved `schema`. The wrapper needs that fully resolved schema to nest it inside the envelope property.
+- Running earlier would mean the schema hasn't been assembled yet.
+
+It pairs with `AugmentJsonResponse` (which runs early to create `JsonContent` from `ref`/`source` and resolve descriptions). The two together form a create-then-wrap pipeline.
 
 ### `Customizers` — appended at the end
 

@@ -6,108 +6,94 @@ use OpenApi\Analysis;
 use OpenApi\Annotations as OA;
 use OpenApi\Context;
 use OpenApi\Generator;
+use OpenApi\Processors\MergeJsonContent;
 use PHPUnit\Framework\TestCase;
-use Radebatz\OpenApi\Extras\Annotations\JsonResponse as JsonResponseAnnotation;
 use Radebatz\OpenApi\Extras\Attributes\JsonResponse;
 use Radebatz\OpenApi\Extras\Processors\AugmentJsonResponse;
+use Radebatz\OpenApi\Extras\Processors\WrapJsonResponseContent;
 use Radebatz\OpenApi\Extras\Tests\Fixtures\Models\TokenPairResource;
 
 class JsonResponseTest extends TestCase
 {
-    public function testAttributeWithRef(): void
+    public static function wrapKeyProvider(): array
     {
-        $response = new JsonResponse(response: 200, ref: TokenPairResource::class);
-
-        $this->assertEquals(200, $response->response);
-        $this->assertEquals(TokenPairResource::class, $response->source);
+        return [
+            'default wrap key' => ['data'],
+            'custom wrap key' => ['result'],
+        ];
     }
 
-    public function testAttributeExplicitDescription(): void
-    {
-        $response = new JsonResponse(response: 200, ref: TokenPairResource::class, description: 'Custom desc');
-
-        $this->assertEquals('Custom desc', $response->description);
-    }
-
-    public function testAttributeNoRef(): void
-    {
-        $response = new JsonResponse(response: 204);
-
-        $this->assertEquals(Generator::UNDEFINED, $response->description);
-        $this->assertEquals(Generator::UNDEFINED, $response->source);
-    }
-
-    public function testAnnotationWithRef(): void
-    {
-        $response = new JsonResponseAnnotation([
-            'response' => 200,
-            'ref' => TokenPairResource::class,
-        ]);
-
-        $this->assertEquals(200, $response->response);
-        $this->assertEquals(TokenPairResource::class, $response->source);
-    }
-
-    public function testProcessorCreatesJsonContent(): void
+    /**
+     * @dataProvider wrapKeyProvider
+     */
+    public function testWrapsRefInEnvelope(string $wrap): void
     {
         $analysis = $this->createAnalysisWithSchema(TokenPairResource::class, 'Token pair', Generator::UNDEFINED);
 
-        $response = new JsonResponse(response: 200, ref: TokenPairResource::class);
+        $response = new JsonResponse(response: 200, ref: TokenPairResource::class, wrap: $wrap);
         $analysis->addAnnotation($response, new Context([]));
 
-        (new AugmentJsonResponse())($analysis);
+        $this->runPipeline($analysis);
 
-        $jsonContents = $analysis->getAnnotationsOfType(OA\JsonContent::class);
-        $this->assertCount(1, $jsonContents);
-        $this->assertEquals(TokenPairResource::class, $jsonContents[0]->ref);
+        $schema = $response->content['application/json']->schema;
+        $this->assertEquals([$wrap], $schema->required);
+        $this->assertCount(1, $schema->properties);
+        $this->assertEquals($wrap, $schema->properties[0]->property);
     }
 
-    public function testProcessorResolvesDescriptionFromTitle(): void
+    public static function descriptionProvider(): array
     {
-        $analysis = $this->createAnalysisWithSchema(TokenPairResource::class, 'Token pair', Generator::UNDEFINED);
-
-        $response = new JsonResponse(response: 200, ref: TokenPairResource::class);
-        $analysis->addAnnotation($response, new Context([]));
-
-        (new AugmentJsonResponse())($analysis);
-
-        $this->assertEquals('Token pair', $response->description);
+        return [
+            'from schema title' => [TokenPairResource::class, 'Token pair', Generator::UNDEFINED, null, 'Token pair'],
+            'from schema description' => [TokenPairResource::class, Generator::UNDEFINED, 'A response', null, 'A response'],
+            'falls back to class name' => ['App\\Models\\SomeUnknown', Generator::UNDEFINED, Generator::UNDEFINED, null, 'SomeUnknown'],
+            'explicit not overridden' => [TokenPairResource::class, 'Token pair', Generator::UNDEFINED, 'My desc', 'My desc'],
+        ];
     }
 
-    public function testProcessorResolvesDescriptionFromSchemaDescription(): void
+    /**
+     * @dataProvider descriptionProvider
+     */
+    public function testDescriptionResolution(string $ref, string $title, string $schemaDesc, ?string $explicit, string $expected): void
     {
-        $analysis = $this->createAnalysisWithSchema(TokenPairResource::class, Generator::UNDEFINED, 'A token pair response');
+        if ($ref === 'App\\Models\\SomeUnknown') {
+            $analysis = new Analysis([], new Context([]));
+        } else {
+            $analysis = $this->createAnalysisWithSchema($ref, $title, $schemaDesc);
+        }
 
-        $response = new JsonResponse(response: 200, ref: TokenPairResource::class);
+        $response = new JsonResponse(response: 200, ref: $ref, description: $explicit);
         $analysis->addAnnotation($response, new Context([]));
 
         (new AugmentJsonResponse())($analysis);
 
-        $this->assertEquals('A token pair response', $response->description);
+        $this->assertEquals($expected, $response->description);
     }
 
-    public function testProcessorFallsBackToClassName(): void
+    public function testPlainResponseUnaffected(): void
     {
         $analysis = new Analysis([], new Context([]));
 
-        $response = new JsonResponse(response: 200, ref: 'App\\Models\\SomeUnknownClass');
-        $analysis->addAnnotation($response, new Context([]));
+        $context = new Context([]);
+        $response = new OA\Response(['response' => 200, 'description' => 'OK', '_context' => $context]);
+        $jsonContent = new OA\JsonContent(['ref' => TokenPairResource::class, '_context' => new Context(['nested' => $response], $context)]);
+        $analysis->addAnnotation($response, $context);
+        $analysis->addAnnotation($jsonContent, $jsonContent->_context);
+
+        (new MergeJsonContent())($analysis);
+        $schemaBefore = $response->content['application/json']->schema;
 
         (new AugmentJsonResponse())($analysis);
+        (new WrapJsonResponseContent())($analysis);
 
-        $this->assertEquals('SomeUnknownClass', $response->description);
+        $this->assertSame($schemaBefore, $response->content['application/json']->schema);
     }
 
-    public function testProcessorSkipsExplicitDescription(): void
+    protected function runPipeline(Analysis $analysis): void
     {
-        $analysis = $this->createAnalysisWithSchema(TokenPairResource::class, 'Token pair', Generator::UNDEFINED);
-
-        $response = new JsonResponse(response: 200, ref: TokenPairResource::class, description: 'My desc');
-        $analysis->addAnnotation($response, new Context([]));
-
         (new AugmentJsonResponse())($analysis);
-
-        $this->assertEquals('My desc', $response->description);
+        (new MergeJsonContent())($analysis);
+        (new WrapJsonResponseContent())($analysis);
     }
 
     protected function createAnalysisWithSchema(string $class, string $title, string $description): Analysis

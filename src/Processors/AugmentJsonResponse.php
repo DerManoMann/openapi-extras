@@ -19,21 +19,17 @@ class AugmentJsonResponse
         $responses = $analysis->getAnnotationsOfType([OAX\JsonResponse::class, OAXT\JsonResponse::class]);
 
         foreach ($responses as $response) {
-            if (Generator::isDefault($response->source)) {
-                continue;
+            if (!Generator::isDefault($response->source) && Generator::isDefault($response->content)) {
+                $this->createContent($response, $analysis);
             }
 
-            if (Generator::isDefault($response->content)) {
-                $this->createJsonContent($response, $analysis);
-            }
-
-            if (Generator::isDefault($response->description)) {
+            if (Generator::isDefault($response->description) && !Generator::isDefault($response->source)) {
                 $response->description = $this->resolveDescription($response->source, $analysis);
             }
         }
     }
 
-    protected function createJsonContent(OAX\JsonResponse|OAXT\JsonResponse $response, Analysis $analysis): void
+    protected function createContent(OAX\JsonResponse|OAXT\JsonResponse $response, Analysis $analysis): void
     {
         $context = new Context(['nested' => $response], $response->_context);
         $jsonContent = new OA\JsonContent(['ref' => $response->source, '_context' => $context]);
