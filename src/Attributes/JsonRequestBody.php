@@ -4,29 +4,29 @@ namespace Radebatz\OpenApi\Extras\Attributes;
 
 use OpenApi\Attributes as OAT;
 use OpenApi\Generator;
-use Radebatz\OpenApi\Extras\JsonContentTrait;
 
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::TARGET_PARAMETER | \Attribute::IS_REPEATABLE)]
 class JsonRequestBody extends OAT\RequestBody
 {
-    use JsonContentTrait;
+    /** @var string|class-string */
+    public string|object $source = Generator::UNDEFINED;
+
+    public static $_blacklist = ['_context', '_unmerged', '_analysis', 'attachables', 'source'];
 
     /**
      * @param string|class-string      $ref
-     * @param string|class-string|null $type
      * @param array<string,mixed>|null $x
      * @param OAT\Attachable[]|null    $attachables
      */
     public function __construct(
         string|object $ref = Generator::UNDEFINED,
-        string|null $type = null,
         ?string $request = null,
         ?string $description = null,
         ?bool $required = true,
         ?array $x = null,
         ?array $attachables = null,
     ) {
-        $this->resolveSource($ref, $type);
+        $this->source = $ref;
 
         parent::__construct(
             request: $request,

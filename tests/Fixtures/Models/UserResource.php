@@ -3,15 +3,14 @@
 namespace Radebatz\OpenApi\Extras\Tests\Fixtures\Models;
 
 use OpenApi\Attributes as OAT;
-use Radebatz\OpenApi\Extras\Attributes as OAX;
 
-#[OAX\DataSchema(schema: 'UserResource', required: ['id', 'name'])]
+#[OAT\Schema(schema: 'UserResource')]
 class UserResource
 {
-    #[OAT\Property(property: 'id', type: 'integer', nullable: false)]
+    #[OAT\Property(property: 'id', type: 'integer')]
     public int $id;
 
-    #[OAT\Property(property: 'name', type: 'string', nullable: false)]
+    #[OAT\Property(property: 'name', type: 'string')]
     public string $name;
 
     #[OAT\Property(property: 'email', type: 'string')]

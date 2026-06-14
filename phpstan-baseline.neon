@@ -1,2 +1,7 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			message: '#^Call to function method_exists\(\) with OpenApi\\Analysis and ''removeAnnotation'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Processors/WrapJsonResponseContent.php

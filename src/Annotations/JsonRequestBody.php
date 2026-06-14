@@ -4,24 +4,23 @@ namespace Radebatz\OpenApi\Extras\Annotations;
 
 use OpenApi\Annotations as OA;
 use OpenApi\Generator;
-use Radebatz\OpenApi\Extras\JsonContentTrait;
 
 /**
- * Shorthand for a JSON request body with a schema ref or type.
+ * Shorthand for a JSON request body with a schema ref.
  *
  * @Annotation
  */
 class JsonRequestBody extends OA\RequestBody
 {
-    use JsonContentTrait;
+    /** @var string|class-string */
+    public string|object $source = Generator::UNDEFINED;
+
+    public static $_blacklist = ['_context', '_unmerged', '_analysis', 'attachables', 'source'];
 
     public function __construct(array $properties)
     {
-        $ref = $properties['ref'] ?? Generator::UNDEFINED;
-        $type = $properties['type'] ?? Generator::UNDEFINED;
-        unset($properties['ref'], $properties['type']);
-
-        $this->resolveSource($ref, Generator::isDefault($type) ? null : $type);
+        $this->source = $properties['ref'] ?? Generator::UNDEFINED;
+        unset($properties['ref']);
 
         parent::__construct($properties);
     }

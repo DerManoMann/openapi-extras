@@ -177,57 +177,6 @@ class UserController extends BaseController
 }
 ```
 
-### `DataSchema`
-
-The `DataSchema` annotation/attribute wraps properties inside a `data` object envelope, reducing boilerplate for APIs that use a standard wrapper pattern.
-
-Properties with `nullable: false` are automatically added to the `data` object's `required` list.
-You can also explicitly pass a `required` list in the constructor.
-
-```php
-<?php declare(strict_types=1);
-
-use OpenApi\Attributes as OAT;
-use Radebatz\OpenApi\Extras\Attributes as OAX;
-
-#[OAX\DataSchema(schema: 'UserResource')]
-class UserResource
-{
-    #[OAT\Property(property: 'id', type: 'integer', nullable: false)]
-    public int $id;
-
-    #[OAT\Property(property: 'name', type: 'string', nullable: false)]
-    public string $name;
-
-    #[OAT\Property(property: 'email', type: 'string')]
-    public string $email;
-}
-```
-
-This generates a schema equivalent to:
-
-```yaml
-UserResource:
-  required:
-    - data
-  properties:
-    data:
-      required:
-        - id
-        - name
-      properties:
-        id:
-          type: integer
-          nullable: false
-        name:
-          type: string
-          nullable: false
-        email:
-          type: string
-      type: object
-  type: object
-```
-
 ### `Middleware`
 
 `Middleware` annotations allow to attach a list of middleware names either individually or across all operations (via the `Controller` annotation).
@@ -311,9 +260,13 @@ The `customizers()` method returns the same mapping format as the `Customizers` 
 
 ### `JsonResponse`
 
-A shorthand for JSON responses that reference a schema. Reduces nesting by wrapping the ref/type in a `JsonContent` automatically.
+A shorthand for JSON responses that reference a schema. Wraps the referenced schema in an envelope property (default `"data"`, matching Laravel's `JsonResource::$wrap`). For unwrapped responses, use the regular `OAT\Response` annotation.
 
 If no `description` is provided, it is derived from the referenced schema (fallback order: title > description > schema name > class short name).
+
+| Parameter     | Default  | Effect                            |
+|---------------|----------|-----------------------------------|
+| `wrap`        | `'data'` | Property name for the envelope    |
 
 ```php
 <?php declare(strict_types=1);
@@ -334,29 +287,50 @@ class TokenPairResource
 class AuthController
 {
     #[OAT\Post(path: '/auth/login', operationId: 'login')]
+    // Wrapped (default): {"data": {$ref: TokenPairResource}}
     #[OAX\JsonResponse(response: 200, ref: TokenPairResource::class)]
     #[OAX\JsonResponse(response: 401, description: 'Invalid credentials')]
     public function login(): mixed
     {
-        // response 200 description auto-derived as "Token pair" from schema title
+        return '...';
+    }
+
+    #[OAT\Get(path: '/auth/session', operationId: 'session')]
+    // Custom wrap key: {"result": {$ref: TokenPairResource}}
+    #[OAX\JsonResponse(response: 200, ref: TokenPairResource::class, wrap: 'result')]
+    public function session(): mixed
+    {
+        return '...';
+    }
+
+    #[OAT\Get(path: '/auth/tokens', operationId: 'tokens')]
+    // List: {"data": [{$ref: TokenPairResource}, ...]}
+    #[OAX\JsonResponse(
+        response: 200,
+        content: new OAT\JsonContent(type: 'array', items: new OAT\Items(ref: TokenPairResource::class)),
+    )]
+    public function tokens(): mixed
+    {
         return '...';
     }
 }
 ```
 
-This is equivalent to the more verbose:
+This generates:
 
-```php
-#[OAT\Response(
-    response: 200,
-    description: 'Token pair',
-    content: new OAT\JsonContent(ref: TokenPairResource::class)
-)]
+```yaml
+content:
+  application/json:
+    schema:
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/TokenPairResource'
 ```
 
 ### `JsonRequestBody`
 
-A shorthand for JSON request bodies that reference a schema. Reduces nesting by wrapping the ref/type in a `JsonContent` automatically.
+A shorthand for JSON request bodies that reference a schema. Reduces nesting by wrapping the ref in a `JsonContent` automatically.
 
 If no `description` is provided, it is derived from the referenced schema (fallback order: title > description > schema name > class short name).
 

@@ -56,7 +56,7 @@ class AugmentJsonRequestBody
     protected function dispatch(OA\RequestBody $requestBody, string $source, Analysis $analysis): void
     {
         $sourceRequestBody = $analysis->getAnnotationForSource($source, OA\RequestBody::class);
-        if ($sourceRequestBody instanceof OA\AbstractAnnotation) {
+        if ($sourceRequestBody instanceof OA\RequestBody) {
             $requestBody->ref = OA\Components::ref($sourceRequestBody);
 
             return;

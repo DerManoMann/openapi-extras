@@ -3,9 +3,8 @@
 namespace Radebatz\OpenApi\Extras\Tests\Fixtures\Models;
 
 use OpenApi\Attributes as OAT;
-use Radebatz\OpenApi\Extras\Attributes as OAX;
 
-#[OAX\DataSchema(schema: 'SimpleResource')]
+#[OAT\Schema(schema: 'SimpleResource')]
 class SimpleResource
 {
     #[OAT\Property(property: 'label', type: 'string')]
