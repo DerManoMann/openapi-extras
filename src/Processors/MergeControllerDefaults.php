@@ -20,7 +20,7 @@ class MergeControllerDefaults
         foreach ($operations as $operation) {
             $chain = $this->resolveControllerChain($operation->_context, $controllerMap, $analysis);
             if ($chain !== []) {
-                $this->applyChain($operation, $chain);
+                $this->applyChain($analysis, $operation, $chain);
             }
         }
 
@@ -95,7 +95,7 @@ class MergeControllerDefaults
     /**
      * @param OAX\Controller[] $chain
      */
-    protected function applyChain(OA\Operation $operation, array $chain): void
+    protected function applyChain(Analysis $analysis, OA\Operation $operation, array $chain): void
     {
         $mergedPrefix = '';
         $mergedTags = [];
@@ -133,9 +133,9 @@ class MergeControllerDefaults
 
         $this->applyPrefix($operation, $mergedPrefix);
         $this->applyTags($operation, $mergedTags);
-        $this->applyResponses($operation, $mergedResponses);
-        $this->applyHeaders($operation, $mergedHeaders);
-        $this->applyMiddlewares($operation, $mergedMiddlewares);
+        $this->applyResponses($analysis, $operation, $mergedResponses);
+        $this->applyHeaders($analysis, $operation, $mergedHeaders);
+        $this->applyMiddlewares($analysis, $operation, $mergedMiddlewares);
     }
 
     protected function applyPrefix(OA\Operation $operation, string $mergedPrefix): void
@@ -162,7 +162,7 @@ class MergeControllerDefaults
     /**
      * @param array<string|int, OA\Response> $mergedResponses
      */
-    protected function applyResponses(OA\Operation $operation, array $mergedResponses): void
+    protected function applyResponses(Analysis $analysis, OA\Operation $operation, array $mergedResponses): void
     {
         if ($mergedResponses !== []) {
             $operation->merge(array_values($mergedResponses), true);
@@ -172,7 +172,7 @@ class MergeControllerDefaults
     /**
      * @param array<string, OA\Header> $mergedHeaders
      */
-    protected function applyHeaders(OA\Operation $operation, array $mergedHeaders): void
+    protected function applyHeaders(Analysis $analysis, OA\Operation $operation, array $mergedHeaders): void
     {
         if ($mergedHeaders && !Generator::isDefault($operation->responses)) {
             foreach ($operation->responses as $response) {
@@ -211,7 +211,7 @@ class MergeControllerDefaults
     /**
      * @param array<string, OAX\Middleware> $mergedMiddlewares
      */
-    protected function applyMiddlewares(OA\Operation $operation, array $mergedMiddlewares): void
+    protected function applyMiddlewares(Analysis $analysis, OA\Operation $operation, array $mergedMiddlewares): void
     {
         if ($mergedMiddlewares === []) {
             return;
@@ -237,7 +237,12 @@ class MergeControllerDefaults
         $annotations = is_array($annotations) ? $annotations : [$annotations];
 
         foreach ($annotations as $annotation) {
-            $analysis->annotations->offsetUnset($annotation);
+            /* @phpstan-ignore function.alreadyNarrowedType */
+            if (method_exists($analysis, 'removeAnnotation')) {
+                $analysis->removeAnnotation($annotation);
+            } else {
+                $analysis->annotations->offsetUnset($annotation);
+            }
         }
     }
 }
