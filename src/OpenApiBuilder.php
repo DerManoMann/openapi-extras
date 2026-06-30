@@ -65,7 +65,7 @@ class OpenApiBuilder
     }
 
     /**
-     * Enable/disable recursive cleanup of unused paths and their nested annotations.
+     * @deprecated will be removed in the next major version
      */
     public function clearUnusedPaths(bool $enabled = true): OpenApiBuilder
     {
