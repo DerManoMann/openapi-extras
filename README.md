@@ -4,6 +4,53 @@
 [![Coverage Status](https://coveralls.io/repos/github/DerManoMann/openapi-extras/badge.svg)](https://coveralls.io/github/DerManoMann/openapi-extras)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> [!WARNING]
+> **This package is abandoned, and the repository is archived (October 2026).** There will be
+> no further releases. Use [swagger-php](https://github.com/zircote/swagger-php)'s
+> [spec attributes](https://zircote.github.io/swagger-php/guide/why-spec) instead.
+
+## Why
+
+openapi-extras added attributes and processors on top of swagger-php's classic pipeline.
+swagger-php now has a second pipeline, built on spec attributes, that covers what this package
+added, and classic is on its way out: swagger-php v7 deprecates it and v8 removes it.
+openapi-router, this package's main consumer, drops it in 5.0, which arrives with
+swagger-php v7.
+
+Nothing breaks today. 4.4.x stays installable, and classic mode keeps working until
+swagger-php v8. Composer will report the package as abandoned on install and update.
+
+One thing has already stopped working: `OpenApiBuilder::clearUnusedPaths()` sets an option
+swagger-php removed in 6.3.0, so on 6.3 and later it has no effect.
+
+## What replaces what
+
+Everything on the right is swagger-php's spec pipeline: `OpenApi\Builder` with
+`setMode(Mode::SPEC)` and the `OpenApi\Spec` attributes. Nothing here maps onto classic mode;
+if you stay on classic, stay on 4.4.x. Configuration keys are listed in the
+[augmenter reference](https://zircote.github.io/swagger-php/reference/augmenters).
+
+| openapi-extras | swagger-php spec pipeline |
+|---|---|
+| `OpenApiBuilder` | `OpenApi\Builder`, with `setMode(Mode::SPEC)` |
+| `addCustomizer(Class, fn)` | an augmenter via `Builder::withAugmenters()`, or a translator via `Builder::withAttributeFactory()` — see [extension points](https://zircote.github.io/swagger-php/guide/extension-points) |
+| `pathsToMatch()` | `pathFilter.paths` |
+| `tagsToMatch()` | `pathFilter.tags` |
+| `clearUnusedComponents()` | `cleanup.enabled`; **on by default** in spec mode |
+| `operationIdHashing()` | `operationIds.hash` |
+| `enumDescription()` | `enumDescriptions.enabled` |
+| `clearUnusedPaths()` | none; it has had no effect since swagger-php 6.3 |
+| `Controller` + `MergeControllerDefaults` | `#[OA\PathItem]` on the class: `prefix`, tags, shared responses and security. No counterpart for `headers`, `middlewares` or `inherit: false` |
+| `Middleware` | openapi-router 5.0's own `Middleware` attribute; it is routing metadata, not OpenAPI |
+| `JsonRequestBody`, `JsonResponse` | `RequestBody` / `Response` with a `MediaType` and `Schema`, or the `MediaType\Json` shortcut |
+| `JsonResponse(wrap: …)` | none; write it out, or add an augmenter |
+| docblock annotations (`oax`) | none; spec mode reads attributes only |
+
+The other `OpenApiBuilder` methods configure classic processors one by one. Their spec-mode
+equivalents, where there are any, are in the augmenter reference above.
+
+---
+
 ## Introduction
 Extra attributes/annotations and other bits for [swagger-php](https://github.com/zircote/swagger-php).
 
